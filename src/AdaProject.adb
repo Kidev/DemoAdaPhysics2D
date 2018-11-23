@@ -47,7 +47,7 @@ with Circles;
 with Worlds;
 with Vectors2D; use Vectors2D;
 
-procedure AdaPhysics2D is
+procedure AdaProject is
 
    BG : constant Bitmap_Color := (Alpha => 255, others => 0);
    procedure Init;
@@ -109,4 +109,4 @@ begin
       -- delay until NextTick;
    end loop;
 
-end AdaPhysics2D;
+end AdaProject;
