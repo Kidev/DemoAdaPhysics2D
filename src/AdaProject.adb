@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                        Copyright (C) 2018, Kidev                         --
+--                     Copyright (C) 2018, Kidev & Azu                      --
 --                                                                          --
 --  Redistribution and use in source and binary forms, with or without      --
 --  modification, are permitted provided that the following conditions are  --
@@ -37,7 +37,7 @@ with Last_Chance_Handler;  pragma Unreferenced (Last_Chance_Handler);
 with STM32.Board; use STM32.Board;
 with HAL.Bitmap; use HAL.Bitmap;
 with HAL.Framebuffer; use HAL.Framebuffer;
-with Ada.Real_Time; use Ada.Real_Time;
+--with Ada.Real_Time; use Ada.Real_Time;
 --with HAL.Touch_Panel;       use HAL.Touch_Panel;
 --with STM32.User_Button;     use STM32;
 with BMP_Fonts;
@@ -46,6 +46,7 @@ with LCD_Std_Out;
 with Circles;
 with Worlds;
 with Vectors2D; use Vectors2D;
+with Renderer; use Renderer;
 
 procedure AdaProject is
 
@@ -72,8 +73,8 @@ procedure AdaProject is
    end Clear;
 
    Count : Integer := 0;
-   Period : constant Time_Span := Milliseconds(1000);
-   NextTick : Time := Clock;
+   --Period : constant Time_Span := Milliseconds(1000);
+   --NextTick : Time := Clock;
 
    C1 : Circles.CircleAcc;
    C2 : Circles.CircleAcc;
@@ -103,6 +104,7 @@ begin
       Clear;
 
       W1.Step;
+      Render(W1.GetEntities);
 
       Count := Count + 1;
       -- NextTick := NextTick + Period;
