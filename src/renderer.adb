@@ -2,6 +2,7 @@ with STM32.Board; use STM32.Board;
 
 with Entities; use Entities;
 with Circles; use Circles;
+with Rectangles; use Rectangles;
 
 package body Renderer is
 
@@ -28,30 +29,23 @@ package body Renderer is
                     );
                end;
                
---              when EntRect =>
---                 declare
---                    R : constant RectAcc := RectAcc(E);
---                 begin
---                    Display.Hidden_Buffer(1).Set_Source
---                      (HAL.Bitmap.Green);
---                    Display.Hidden_Buffer(1).Fill_Rect
---                      (
---                       Area => (
---                                Position => getIntCoords(R.all.Coords),
---                                Height => 5,
---                                Width => 5
---                               ),
---                       Thickness => 1
---                      );
---                 end;
+            when EntRectangle =>
+               declare
+                  R : constant RectangleAcc := RectangleAcc(E);
+               begin
+                  Display.Hidden_Buffer(1).Set_Source
+                    (HAL.Bitmap.Green);
+                  Display.Hidden_Buffer(1).Fill_Rect
+                    (
+                     Area => (
+                              Position => getIntCoords(R.all.Coords),
+                              Height => Natural(R.all.GetHeight),
+                              Width => Natural(R.all.GetWidth)
+                             )
+                    );
+               end;
                
          end case;
-
---      Display.Hidden_Buffer(1).Draw_Rect
---        (
---         Area => (Position => (480, 200), Height => 5, Width => 5),
---         Thickness => 1
---        );
 
       end loop;
       Display.Update_Layer(1, Copy_Back => False);

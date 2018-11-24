@@ -43,6 +43,7 @@ with HAL.Bitmap; use HAL.Bitmap;
 with BMP_Fonts;
 with LCD_Std_Out;
 
+with Rectangles;
 with Circles;
 with Worlds;
 with Vectors2D; use Vectors2D;
@@ -78,8 +79,8 @@ procedure AdaProject is
    --Period : constant Time_Span := Milliseconds(1000);
    --NextTick : Time := Clock;
 
-   C1 : Circles.CircleAcc;
-   C2 : Circles.CircleAcc;
+   C1, C2 : Circles.CircleAcc;
+   R1, R2 : Rectangles.RectangleAcc;
    W1 : Worlds.World;
    VecZero, LatSpeed : Vec2D;
    Vec1, Vec2, Grav : Vec2D;
@@ -99,8 +100,20 @@ begin
    C1 := Circles.Create(Vec1, LatSpeed, Grav, 10.0, 0.9, 5.0);
    C2 := Circles.Create(Vec2, VecZero, Grav, 5.0, 0.9, 2.0);
 
+   Vec1 := Vec2D'(x => 0.0, y => 300.0);
+   Vec2 := Vec2D'(x => 240.0, y => 320.0);
+
+   R1 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, 0.0, 1.0);
+
+   Vec1 := Vec2D'(x => 100.0, y => 20.0);
+   Vec2 := Vec2D'(x => 130.0, y => 40.0);
+
+   R2 := Rectangles.Create(Vec1, VecZero, Grav, Vec2, 20.0, 0.9);
+
    W1.Add(C1);
    W1.Add(C2);
+   W1.Add(R1);
+   W1.Add(R2);
 
    Init;
    loop
