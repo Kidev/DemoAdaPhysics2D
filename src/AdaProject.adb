@@ -101,14 +101,14 @@ begin
    C2 := Circles.Create(Vec2, VecZero, Grav, 5.0, 0.9, 2.0);
 
    Vec1 := Vec2D'(x => 0.0, y => 300.0);
-   Vec2 := Vec2D'(x => 240.0, y => 320.0);
+   Vec2 := Vec2D'(x => 240.0, y => 20.0);
 
    R1 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, 0.0, 1.0);
 
    Vec1 := Vec2D'(x => 100.0, y => 20.0);
-   Vec2 := Vec2D'(x => 130.0, y => 40.0);
+   Vec2 := Vec2D'(x => 30.0, y => 20.0);
 
-   R2 := Rectangles.Create(Vec1, VecZero, Grav, Vec2, 20.0, 0.9);
+   R2 := Rectangles.Create(Vec1, VecZero, Grav, Vec2, 20.0, 0.1);
 
    W1.Add(C1);
    W1.Add(C2);
