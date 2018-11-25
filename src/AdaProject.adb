@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                     Copyright (C) 2018, Kidev & Azu                      --
+--                        Copyright (C) 2018, Kidev                         --
 --                                                                          --
 --  Redistribution and use in source and binary forms, with or without      --
 --  modification, are permitted provided that the following conditions are  --
@@ -76,7 +76,7 @@ procedure AdaProject is
    VecZero, LatSpeed : Vec2D;
    Vec1, Vec2, Grav : Vec2D;
 
-   fps : constant Float := 26.0;
+   fps : constant Float := 24.0;
    dt : constant Float := 1.0 / fps;
 
 begin
@@ -86,8 +86,8 @@ begin
    Vec2 := Vec2D'(x => 50.0, y => 10.0);
    Grav := Vec2D'(x => 0.0, y => 9.81);
 
-   C1 := Circles.Create(Vec1, LatSpeed, Grav, 10.0, 0.9, 5.0);
-   C2 := Circles.Create(Vec2, VecZero, Grav, 5.0, 0.9, 2.0);
+   C1 := Circles.Create(Vec1, LatSpeed, Grav, 10.0, 0.5, 5.0);
+   C2 := Circles.Create(Vec2, VecZero, Grav, 5.0, 0.5, 2.0);
 
    -- Floor
    Vec1 := Vec2D'(x => 0.0, y => 300.0);
