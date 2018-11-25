@@ -36,10 +36,6 @@ with Last_Chance_Handler;  pragma Unreferenced (Last_Chance_Handler);
 
 with STM32.Board; use STM32.Board;
 with HAL.Bitmap; use HAL.Bitmap;
---with HAL.Framebuffer; use HAL.Framebuffer;
---with Ada.Real_Time; use Ada.Real_Time;
---with HAL.Touch_Panel;       use HAL.Touch_Panel;
---with STM32.User_Button;     use STM32;
 with BMP_Fonts;
 with LCD_Std_Out;
 
@@ -59,7 +55,6 @@ procedure AdaProject is
    begin
       Display.Initialize;
       Display.Initialize_Layer(1, ARGB_8888);
-      --LCD_Std_Out.Set_Orientation(Landscape);
       LCD_Std_Out.Set_Font(BMP_Fonts.Font12x12);
       LCD_Std_Out.Current_Background_Color := BG;
       Clear(True);
@@ -75,12 +70,8 @@ procedure AdaProject is
       end if;
    end Clear;
 
-   Count : Integer := 0;
-   --Period : constant Time_Span := Milliseconds(1000);
-   --NextTick : Time := Clock;
-
    C1, C2 : Circles.CircleAcc;
-   R1, R2 : Rectangles.RectangleAcc;
+   R1, R2, R3, R4 : Rectangles.RectangleAcc;
    W1 : Worlds.World;
    VecZero, LatSpeed : Vec2D;
    Vec1, Vec2, Grav : Vec2D;
@@ -95,36 +86,41 @@ begin
    Vec2 := Vec2D'(x => 50.0, y => 10.0);
    Grav := Vec2D'(x => 0.0, y => 9.81);
 
-   W1.Init(dt);
-
    C1 := Circles.Create(Vec1, LatSpeed, Grav, 10.0, 0.9, 5.0);
    C2 := Circles.Create(Vec2, VecZero, Grav, 5.0, 0.9, 2.0);
 
+   -- Floor
    Vec1 := Vec2D'(x => 0.0, y => 300.0);
    Vec2 := Vec2D'(x => 240.0, y => 20.0);
-
    R1 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, 0.0, 1.0);
+
+   -- Right wall
+   Vec1 := Vec2D'(x => 235.0, y => 0.0);
+   Vec2 := Vec2D'(x => 5.0, y => 300.0);
+   R2 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, 0.0, 1.0);
+
+   -- Left wall
+   Vec1 := Vec2D'(x => 0.0, y => 0.0);
+   Vec2 := Vec2D'(x => 5.0, y => 300.0);
+   R3 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, 0.0, 1.0);
 
    Vec1 := Vec2D'(x => 100.0, y => 20.0);
    Vec2 := Vec2D'(x => 30.0, y => 20.0);
+   R4 := Rectangles.Create(Vec1, LatSpeed, Grav, Vec2, 20.0, 0.5);
 
-   R2 := Rectangles.Create(Vec1, VecZero, Grav, Vec2, 20.0, 0.1);
-
+   W1.Init(dt);
    W1.Add(C1);
    W1.Add(C2);
    W1.Add(R1);
    W1.Add(R2);
+   W1.Add(R3);
+   W1.Add(R4);
 
    Init;
    loop
       Clear(False);
-
       W1.Step;
       Render(W1.GetEntities);
-
-      Count := Count + 1;
-      -- NextTick := NextTick + Period;
-      -- delay until NextTick;
    end loop;
 
 end AdaProject;

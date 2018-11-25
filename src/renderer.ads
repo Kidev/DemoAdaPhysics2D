@@ -6,6 +6,8 @@ package Renderer is
 
    -- Displays the entities passed
    procedure Render(Ents : EArray);
+
+   -- Failsafe translation to int Coords
    function getIntCoords(flCoords : Vec2D) return Point;
 
 end Renderer;

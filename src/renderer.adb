@@ -54,8 +54,18 @@ package body Renderer is
    
    function getIntCoords(flCoords : Vec2D) return Point
    is
+      retCoords : Vec2D;
    begin
-      return Point'(Natural(flCoords.x), Natural(flCoords.y));
+      retCoords := flCoords;
+      
+      if retCoords.x < 0.0 or retCoords.x > 240.0 then
+         retCoords.x := 120.0;
+      end if;
+      if retCoords.y < 0.0 or retCoords.y > 320.0 then
+         retCoords.y := 160.0;
+      end if;
+      
+      return Point'(Natural(retCoords.x), Natural(retCoords.y));
    end getIntCoords;
 
 end Renderer;
