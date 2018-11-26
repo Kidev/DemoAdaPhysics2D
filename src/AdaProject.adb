@@ -42,6 +42,7 @@ with LCD_Std_Out;
 with Rectangles;
 with Circles;
 with Worlds;
+with Materials;
 with Vectors2D; use Vectors2D;
 with Renderer; use Renderer;
 
@@ -70,8 +71,8 @@ procedure AdaProject is
       end if;
    end Clear;
 
-   C1, C2 : Circles.CircleAcc;
-   R1, R2, R3, R4 : Rectangles.RectangleAcc;
+   C1, C2, C3, C4 : Circles.CircleAcc;
+   R0, R1, R2, R3, R4, R5 : Rectangles.RectangleAcc;
    W1 : Worlds.World;
    VecZero, LatSpeed : Vec2D;
    Vec1, Vec2, Grav : Vec2D;
@@ -86,40 +87,58 @@ begin
    Vec2 := Vec2D'(x => 50.0, y => 10.0);
    Grav := Vec2D'(x => 0.0, y => 9.81);
 
-   C1 := Circles.Create(Vec1, LatSpeed, Grav, 10.0, 0.5, 5.0);
-   C2 := Circles.Create(Vec2, VecZero, Grav, 5.0, 0.5, 2.0);
+   C1 := Circles.Create(Vec1, LatSpeed, Grav, 5.0, Materials.RUBBER);
+   C2 := Circles.Create(Vec2, VecZero, Grav, 2.0, Materials.RUBBER);
+   C3 := Circles.Create(Vec1 + Vec2, -LatSpeed, Grav, 15.0, Materials.RUBBER);
+   C4 := Circles.Create(2.0 * Vec2 - Vec1, VecZero, Grav, 6.0, Materials.RUBBER);
+
+   -- Ceiling
+   Vec1 := Vec2D'(x => 5.0, y => 0.0);
+   Vec2 := Vec2D'(x => 230.0, y => 5.0);
+   R0 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
 
    -- Floor
    Vec1 := Vec2D'(x => 0.0, y => 300.0);
    Vec2 := Vec2D'(x => 240.0, y => 20.0);
-   R1 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, 0.0, 1.0);
+   R1 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
 
    -- Right wall
    Vec1 := Vec2D'(x => 235.0, y => 0.0);
    Vec2 := Vec2D'(x => 5.0, y => 300.0);
-   R2 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, 0.0, 1.0);
+   R2 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
 
    -- Left wall
    Vec1 := Vec2D'(x => 0.0, y => 0.0);
    Vec2 := Vec2D'(x => 5.0, y => 300.0);
-   R3 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, 0.0, 1.0);
+   R3 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
 
    Vec1 := Vec2D'(x => 100.0, y => 20.0);
    Vec2 := Vec2D'(x => 30.0, y => 20.0);
-   R4 := Rectangles.Create(Vec1, LatSpeed, Grav, Vec2, 20.0, 0.5);
+   R4 := Rectangles.Create(Vec1, LatSpeed, Grav, 2.0 * Vec2, Materials.CONCRETE);
+
+   Vec1 := Vec2D'(x => 100.0, y => 200.0);
+   Vec2 := Vec2D'(x => 30.0, y => 20.0);
+   R5 := Rectangles.Create(Vec1, LatSpeed, Grav, Vec2, Materials.WOOD);
 
    W1.Init(dt);
    W1.Add(C1);
    W1.Add(C2);
+   W1.Add(C3);
+   W1.Add(C4);
+   W1.Add(R4);
+   W1.Add(R5);
+
+   -- Borders added last so that they are above all the rest
+   W1.Add(R0);
    W1.Add(R1);
    W1.Add(R2);
    W1.Add(R3);
-   W1.Add(R4);
 
    Init;
    loop
       Clear(False);
       W1.Step;
+      CheckEntities(W1);
       Render(W1.GetEntities);
    end loop;
 

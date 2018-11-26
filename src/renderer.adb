@@ -1,6 +1,4 @@
 with STM32.Board; use STM32.Board;
-
-with Entities; use Entities;
 with Circles; use Circles;
 with Rectangles; use Rectangles;
 
@@ -14,17 +12,18 @@ package body Renderer is
       for I in Ents'Range loop
 
          E := Ents(I);
+         
+         Display.Hidden_Buffer(1).Set_Source(GetColor(E.Mat));
+         
          case E.all.EntityType is
 
             when EntCircle =>
                declare
                   C : constant CircleAcc := CircleAcc(E);
                begin
-                  Display.Hidden_Buffer(1).Set_Source
-                    (HAL.Bitmap.Red);
                   Display.Hidden_Buffer(1).Fill_Circle
                     (
-                     Center => getIntCoords(C.all.Coords),
+                     Center => GetIntCoords(C.all.Coords),
                      Radius => Integer(C.all.Radius)
                     );
                end;
@@ -33,12 +32,10 @@ package body Renderer is
                declare
                   R : constant RectangleAcc := RectangleAcc(E);
                begin
-                  Display.Hidden_Buffer(1).Set_Source
-                    (HAL.Bitmap.Green);
                   Display.Hidden_Buffer(1).Fill_Rect
                     (
                      Area => (
-                              Position => getIntCoords(R.all.Coords),
+                              Position => GetIntCoords(R.all.Coords),
                               Height => Natural(R.all.GetHeight),
                               Width => Natural(R.all.GetWidth)
                              )
@@ -52,7 +49,48 @@ package body Renderer is
       
    end Render;
    
-   function getIntCoords(flCoords : Vec2D) return Point
+   function GetColor(Mat : in Material) return Bitmap_Color
+   is
+   begin
+      case Mat.MType is
+         when MTStatic => return Green;
+         when MTSteel => return Silver;
+         when MTIce => return Blue;
+         when MTConcrete => return Grey;
+         when MTRubber => return Red;
+         when MTWood => return Brown;
+      end case;
+   end GetColor;
+   
+   procedure CheckEntities(W : in out World)
+   is
+   begin
+      loop
+         declare
+            Ents : constant EArray := W.GetEntities;
+            Edited : Boolean := False;
+         begin
+            for E of Ents loop
+               if InvalidEnt(E) then
+                  Edited := True;
+                  W.Remove(E);
+                  exit;
+               end if;
+            end loop;
+            exit when not Edited;
+         end;
+      end loop;
+   end CheckEntities;
+   
+   function InvalidEnt(E : not null access Entity'Class) return Boolean
+   is
+   begin
+      if E.Coords.x < 0.0 or E.Coords.x > 240.0 then return True; end if;
+      if E.Coords.y < 0.0 or E.Coords.y > 320.0 then return True; end if;
+      return False;
+   end InvalidEnt;
+   
+   function GetIntCoords(flCoords : Vec2D) return Point
    is
       retCoords : Vec2D;
    begin
