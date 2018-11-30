@@ -45,6 +45,7 @@ with Worlds;
 with Materials;
 with Vectors2D; use Vectors2D;
 with Renderer; use Renderer;
+with GameLogic; use GameLogic;
 
 procedure AdaProject is
 
@@ -56,6 +57,7 @@ procedure AdaProject is
    begin
       Display.Initialize;
       Display.Initialize_Layer(1, ARGB_8888);
+      Touch_Panel.Initialize;
       LCD_Std_Out.Set_Font(BMP_Fonts.Font12x12);
       LCD_Std_Out.Current_Background_Color := BG;
       Clear(True);
@@ -114,11 +116,11 @@ begin
 
    Vec1 := Vec2D'(x => 100.0, y => 20.0);
    Vec2 := Vec2D'(x => 30.0, y => 20.0);
-   R4 := Rectangles.Create(Vec1, LatSpeed, Grav, 2.0 * Vec2, Materials.CONCRETE);
+   R4 := Rectangles.Create(Vec1, LatSpeed, Grav, Vec2, Materials.SetStatic(Materials.ICE));
 
    Vec1 := Vec2D'(x => 100.0, y => 200.0);
    Vec2 := Vec2D'(x => 30.0, y => 20.0);
-   R5 := Rectangles.Create(Vec1, LatSpeed, Grav, Vec2, Materials.WOOD);
+   R5 := Rectangles.Create(Vec1, -LatSpeed, Grav, Vec2, Materials.STEEL);
 
    W1.Init(dt);
    W1.Add(C1);
@@ -136,6 +138,7 @@ begin
 
    Init;
    loop
+      Inputs(W1);
       Clear(False);
       W1.Step;
       CheckEntities(W1);
