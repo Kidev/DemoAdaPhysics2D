@@ -36,6 +36,7 @@ with Last_Chance_Handler;  pragma Unreferenced (Last_Chance_Handler);
 
 with STM32.Board; use STM32.Board;
 with HAL.Bitmap; use HAL.Bitmap;
+with STM32.User_Button; use STM32;
 with BMP_Fonts;
 with LCD_Std_Out;
 
@@ -56,8 +57,9 @@ procedure AdaProject is
    procedure Init is
    begin
       Display.Initialize;
-      Display.Initialize_Layer(1, ARGB_8888);
+      Display.Initialize_Layer(1, RGB_565);
       Touch_Panel.Initialize;
+      User_Button.Initialize;
       LCD_Std_Out.Set_Font(BMP_Fonts.Font12x12);
       LCD_Std_Out.Current_Background_Color := BG;
       Clear(True);
@@ -74,13 +76,19 @@ procedure AdaProject is
    end Clear;
 
    C1, C2, C3, C4 : Circles.CircleAcc;
-   R0, R1, R2, R3, R4, R5 : Rectangles.RectangleAcc;
+   R0, R1, R2, R3 : Rectangles.RectangleAcc;
    W1 : Worlds.World;
    VecZero, LatSpeed : Vec2D;
    Vec1, Vec2, Grav : Vec2D;
 
    fps : constant Float := 24.0;
    dt : constant Float := 1.0 / fps;
+   cd : constant Integer := 10; -- * dt
+
+   -- if true, the world will no longer update (blue button)
+   Frozen : Boolean := True;
+   Cooldown : Integer := 0;
+   Tick : Integer := 0;
 
 begin
    VecZero := Vec2D'(x => 0.0, y => 0.0);
@@ -114,35 +122,38 @@ begin
    Vec2 := Vec2D'(x => 5.0, y => 300.0);
    R3 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
 
-   Vec1 := Vec2D'(x => 100.0, y => 20.0);
-   Vec2 := Vec2D'(x => 30.0, y => 20.0);
-   R4 := Rectangles.Create(Vec1, LatSpeed, Grav, Vec2, Materials.SetStatic(Materials.ICE));
-
-   Vec1 := Vec2D'(x => 100.0, y => 200.0);
-   Vec2 := Vec2D'(x => 30.0, y => 20.0);
-   R5 := Rectangles.Create(Vec1, -LatSpeed, Grav, Vec2, Materials.STEEL);
-
    W1.Init(dt);
-   W1.Add(C1);
-   W1.Add(C2);
-   W1.Add(C3);
-   W1.Add(C4);
-   W1.Add(R4);
-   W1.Add(R5);
 
-   -- Borders added last so that they are above all the rest
    W1.Add(R0);
    W1.Add(R1);
    W1.Add(R2);
    W1.Add(R3);
 
+   W1.Add(C1);
+   W1.Add(C2);
+   W1.Add(C3);
+   W1.Add(C4);
+
+   for I in 1 .. 60 loop
+      C1 := Circles.Create((Float(I) * 4.0 + 10.0, Float(I) * 4.0 + 10.0), VecZero, Grav, 2.0, Materials.RUBBER);
+      W1.Add(C1);
+   end loop;
+
    Init;
    loop
-      Inputs(W1);
-      Clear(False);
-      W1.Step;
-      CheckEntities(W1);
-      Render(W1.GetEntities);
+      if Inputs(W1, Frozen, Cooldown) then -- gets the user inputs and updates the world accordingly
+         Cooldown := cd; -- reset cooldown
+      end if;
+      if not Frozen then
+         Tick := Tick + 1;
+         W1.Step; -- update the world for one tick (dt)
+      end if;
+      CheckEntities(W1); -- check if entities are valid (prevents card crash)
+      Render(W1.GetEntities); -- renders
+      Clear(False); -- clear buffer for next render
+      if Cooldown > 0 then
+         Cooldown := Cooldown - 1;
+      end if;
    end loop;
 
 end AdaProject;

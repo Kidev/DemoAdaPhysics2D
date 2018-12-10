@@ -6,12 +6,9 @@ package body Renderer is
 
    procedure Render(Ents : EArray)
    is
-      E : access Entity'Class;
    begin
       
-      for I in Ents'Range loop
-
-         E := Ents(I);
+      for E of Ents loop
          
          Display.Hidden_Buffer(1).Set_Source(GetColor(E.Mat));
          
@@ -21,7 +18,7 @@ package body Renderer is
                declare
                   C : constant CircleAcc := CircleAcc(E);
                begin
-                  Display.Hidden_Buffer(1).Fill_Circle
+                  Display.Hidden_Buffer(1).Draw_Circle
                     (
                      Center => GetIntCoords(C.all.Coords),
                      Radius => Integer(C.all.Radius)
@@ -32,7 +29,7 @@ package body Renderer is
                declare
                   R : constant RectangleAcc := RectangleAcc(E);
                begin
-                  Display.Hidden_Buffer(1).Fill_Rect
+                  Display.Hidden_Buffer(1).Draw_Rect
                     (
                      Area => (
                               Position => GetIntCoords(R.all.Coords),
@@ -45,6 +42,7 @@ package body Renderer is
          end case;
 
       end loop;
+
       Display.Update_Layer(1, Copy_Back => False);
       
    end Render;
@@ -73,7 +71,7 @@ package body Renderer is
             for E of Ents loop
                if InvalidEnt(E) then
                   Edited := True;
-                  W.Remove(E);
+                  W.Remove(E, True);
                   exit;
                end if;
             end loop;
@@ -85,8 +83,8 @@ package body Renderer is
    function InvalidEnt(E : not null access Entity'Class) return Boolean
    is
    begin
-      if E.Coords.x < 0.0 or E.Coords.x > 240.0 then return True; end if;
-      if E.Coords.y < 0.0 or E.Coords.y > 320.0 then return True; end if;
+      if Integer(E.Coords.x) < 0 or Integer(E.Coords.x) > 240 then return True; end if;
+      if Integer(E.Coords.y) < 0 or Integer(E.Coords.y) > 320 then return True; end if;
       return False;
    end InvalidEnt;
    

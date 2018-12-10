@@ -1,41 +1,66 @@
 with HAL.Touch_Panel; use HAL.Touch_Panel;
+with HAL.Bitmap; use HAL.Bitmap;
 with STM32.Board; use STM32.Board;
-with Entities; use Entities;
+with STM32.User_Button; use STM32;
+with Circles;
+with Vectors2D; use Vectors2D;
+with Materials;
 
 package body GameLogic is
+   
+   Hold : Integer := 0;
+   GlobalGravity : Vec2D := (0.0, 9.81);
+   LastX, LastY : Integer := 0;
 
-   procedure Inputs(W : in out World)
+   function Inputs(W : in out World; Frozen : in out Boolean; Cooldown : Integer) return Boolean
    is
       State : constant TP_State := Touch_Panel.Get_All_Touch_Points;
-      NewGrav : Vec2D;
    begin
-      if State'Length = 1 then
-         NewGrav := GetVecFromCenter(State(State'First).X, State (State'First).Y);
-         for E of W.GetEntities loop
-            E.SetGrav(NewGrav);
-         end loop;
+      -- Pause button
+      if User_Button.Has_Been_Pressed then
+         Frozen := not Frozen;
       end if;
+
+      -- Entity creator
+      if Cooldown = 0 then 
+         if State'Length = 1 then
+            Hold := Integer'Min(Hold + 1, 20);
+            LastX := State(State'First).X;
+            LastY := State(State'First).Y;
+            DisplayCircle(LastX, LastY, Hold);
+         elsif Hold > 0 then
+            CreateCircle(W, LastX, LastY, Hold);
+            Hold := 0;
+            return True;
+         end if;
+      elsif State'Length = 1 then
+         Hold := Integer'Min(Hold + 1, 20);
+         DisplayCircle(State(State'First).X, State(State'First).Y, Hold);
+      end if;
+
+      return False;
    end Inputs;
    
-   function GetVecFromCenter(X, Y : Integer) return Vec2D
+   procedure DisplayCircle(X, Y, Hold : Integer)
    is
-      xCenter : constant Integer := 120;
-      yCenter : constant Integer := 160;
    begin
-      return Vec2D'(
-                    Clamp(Float(X - xCenter), -9.81, 9.81),
-                    Clamp(Float(Y - yCenter), -9.81, 9.81)
-                   );
-   end GetVecFromCenter;
+      Display.Hidden_Buffer(1).Set_Source(Red);
+      Display.Hidden_Buffer(1).Draw_Circle
+                    (
+                     Center => (X, Y),
+                     Radius => (Hold * 2)
+                    );
+   end DisplayCircle;
    
-   function Clamp(Value, Min, Max : Float) return Float
+   procedure CreateCircle(W : in out World; X, Y, Hold : Integer)
    is
+      C : Circles.CircleAcc;
+      VecZero : constant Vec2D := (0.0, 0.0);
+      VecPos : constant Vec2D := (Float(X), Float(Y));
    begin
-
-      if Value < Min then return Min; end if;
-      if Value > Max then return Max; end if;
-      return Value;
-
-   end Clamp;
+      C := Circles.Create(VecPos, VecZero, GlobalGravity, Float(Hold) * 2.0, Materials.RUBBER);
+      W.Add(C);
+   end CreateCircle;
 
 end GameLogic;
+

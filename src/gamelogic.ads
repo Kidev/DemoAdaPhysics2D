@@ -1,12 +1,11 @@
 with Worlds; use Worlds;
-with Vectors2D; use Vectors2D;
 
 package GameLogic is
 
-   procedure Inputs(W : in out World);
+   function Inputs(W : in out World; Frozen : in out Boolean; Cooldown : Integer) return Boolean;
    
-   function GetVecFromCenter(X, Y : Integer) return Vec2D;
+   procedure DisplayCircle(X, Y, Hold : Integer);
    
-   function Clamp(Value, Min, Max : Float) return Float;
+   procedure CreateCircle(W : in out World; X, Y, Hold : Integer);
 
 end GameLogic;
