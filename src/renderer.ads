@@ -19,6 +19,6 @@ package Renderer is
    procedure CheckEntities(W : in out World);
 
    -- Tells if an entity is invalid
-   function InvalidEnt(E : not null access Entity'Class) return Boolean;
+   function InvalidEnt(E : access Entity'Class) return Boolean;
 
 end Renderer;

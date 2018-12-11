@@ -7,10 +7,10 @@ with Vectors2D; use Vectors2D;
 with Materials;
 
 package body GameLogic is
-   
+     
    Hold : Integer := 0;
-   GlobalGravity : Vec2D := (0.0, 9.81);
    LastX, LastY : Integer := 0;
+   GlobalGravity : constant Vec2D := (0.0, 9.81);
 
    function Inputs(W : in out World; Frozen : in out Boolean; Cooldown : Integer) return Boolean
    is

@@ -134,23 +134,38 @@ begin
    W1.Add(C3);
    W1.Add(C4);
 
-   for I in 1 .. 60 loop
+   -- crashes for Imax = 60 with Step(), not with StepLowSRAM()
+   for I in 1 .. 50 loop
       C1 := Circles.Create((Float(I) * 4.0 + 10.0, Float(I) * 4.0 + 10.0), VecZero, Grav, 2.0, Materials.RUBBER);
       W1.Add(C1);
    end loop;
 
    Init;
    loop
-      if Inputs(W1, Frozen, Cooldown) then -- gets the user inputs and updates the world accordingly
+      -- gets the user inputs and updates the world accordingly
+      if Inputs(W1, Frozen, Cooldown) then
          Cooldown := cd; -- reset cooldown
       end if;
       if not Frozen then
          Tick := Tick + 1;
-         W1.Step; -- update the world for one tick (dt)
+         -- update the world for one tick (dt) (too mem intense for the STM32F429)
+         -- W1.Step;
+
+         -- update the world for one tick (dt) with low sram usage
+         -- InvalidEnt'Access is an access to a function that tells
+         -- is an ent is valid or not (outside of the screen -> delete)
+         W1.StepLowRAM(InvalidEnt'Access);
       end if;
-      CheckEntities(W1); -- check if entities are valid (prevents card crash)
-      Render(W1.GetEntities); -- renders
-      Clear(False); -- clear buffer for next render
+
+      -- check if entities are valid (prevents card crash) now done in StepLowSRAM
+      -- CheckEntities(W1);
+
+      -- renders
+      Render(W1.GetEntities);
+
+      -- clear buffer for next render
+      Clear(False);
+
       if Cooldown > 0 then
          Cooldown := Cooldown - 1;
       end if;

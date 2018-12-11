@@ -29,7 +29,7 @@ package body Renderer is
                declare
                   R : constant RectangleAcc := RectangleAcc(E);
                begin
-                  Display.Hidden_Buffer(1).Draw_Rect
+                  Display.Hidden_Buffer(1).Fill_Rect
                     (
                      Area => (
                               Position => GetIntCoords(R.all.Coords),
@@ -80,9 +80,10 @@ package body Renderer is
       end loop;
    end CheckEntities;
    
-   function InvalidEnt(E : not null access Entity'Class) return Boolean
+   function InvalidEnt(E : access Entity'Class) return Boolean
    is
    begin
+      if E = null then return True; end if;
       if Integer(E.Coords.x) < 0 or Integer(E.Coords.x) > 240 then return True; end if;
       if Integer(E.Coords.y) < 0 or Integer(E.Coords.y) > 320 then return True; end if;
       return False;
