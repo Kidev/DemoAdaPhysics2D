@@ -18,27 +18,41 @@ package body Renderer is
                declare
                   C : constant CircleAcc := CircleAcc(E);
                begin
-                  Display.Hidden_Buffer(1).Draw_Circle
-                    (
-                     Center => GetIntCoords(C.all.Coords),
-                     Radius => Integer(C.all.Radius)
-                    );
+                  if C.all.Mat.Density = 0.0 then
+                      Display.Hidden_Buffer(1).Fill_Circle
+                       (
+                        Center => GetIntCoords(C.all.Coords),
+                        Radius => Integer(C.all.Radius)
+                       );                    
+                  else
+                     Display.Hidden_Buffer(1).Draw_Circle
+                       (
+                        Center => GetIntCoords(C.all.Coords),
+                        Radius => Integer(C.all.Radius)
+                       );
+                  end if;
                end;
                
             when EntRectangle =>
                declare
                   R : constant RectangleAcc := RectangleAcc(E);
                begin
-                  Display.Hidden_Buffer(1).Fill_Rect
-                    (
-                     Area => (
-                              Position => GetIntCoords(R.all.Coords),
-                              Height => Natural(R.all.GetHeight),
-                              Width => Natural(R.all.GetWidth)
-                             )
-                    );
+                  if R.all.Mat.Density = 0.0 then
+                     Display.Hidden_Buffer(1).Fill_Rect
+                       (
+                        Area => (Position => GetIntCoords(R.all.Coords),
+                                 Height => Natural(R.all.GetHeight),
+                                 Width => Natural(R.all.GetWidth))
+                       );
+                  else
+                      Display.Hidden_Buffer(1).Draw_Rect
+                       (
+                        Area => (Position => GetIntCoords(R.all.Coords),
+                                 Height => Natural(R.all.GetHeight),
+                                 Width => Natural(R.all.GetWidth))
+                       );                    
+                  end if;
                end;
-               
          end case;
 
       end loop;
@@ -84,8 +98,8 @@ package body Renderer is
    is
    begin
       if E = null then return True; end if;
-      if Integer(E.Coords.x) < 0 or Integer(E.Coords.x) > 240 then return True; end if;
-      if Integer(E.Coords.y) < 0 or Integer(E.Coords.y) > 320 then return True; end if;
+      if E.Coords.x < 0.0 or E.Coords.x > 240.0 then return True; end if;
+      if E.Coords.y < 0.0 or E.Coords.y > 320.0 then return True; end if;
       return False;
    end InvalidEnt;
    
@@ -96,10 +110,10 @@ package body Renderer is
       retCoords := flCoords;
       
       if retCoords.x < 0.0 or retCoords.x > 240.0 then
-         retCoords.x := 120.0;
+         retCoords.x := 0.0;
       end if;
       if retCoords.y < 0.0 or retCoords.y > 320.0 then
-         retCoords.y := 160.0;
+         retCoords.y := 0.0;
       end if;
       
       return Point'(Natural(retCoords.x), Natural(retCoords.y));

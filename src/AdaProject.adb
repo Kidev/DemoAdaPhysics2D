@@ -35,13 +35,15 @@ with Last_Chance_Handler;  pragma Unreferenced (Last_Chance_Handler);
 --  must be somewhere in the closure of the context clauses.
 
 with STM32.Board; use STM32.Board;
+with STM32.Device; use STM32.Device;
+with STM32.GPIO; use STM32.GPIO;
+with STM32.EXTI; use STM32.EXTI;
+with STM32; use STM32;
+with L3GD20; use L3GD20;
 with HAL.Bitmap; use HAL.Bitmap;
 with STM32.User_Button; use STM32;
-with BMP_Fonts;
-with LCD_Std_Out;
 
 with Rectangles;
-with Circles;
 with Worlds;
 with Materials;
 with Vectors2D; use Vectors2D;
@@ -51,8 +53,15 @@ with GameLogic; use GameLogic;
 procedure AdaProject is
 
    BG : constant Bitmap_Color := (Alpha => 255, others => 0);
-   procedure Init;
-   procedure Clear(Update : Boolean);
+
+   procedure Clear(Update : Boolean) is
+   begin
+      Display.Hidden_Buffer(1).Set_Source(BG);
+      Display.Hidden_Buffer(1).Fill;
+      if Update then
+         Display.Update_Layer(1, Copy_Back => False);
+      end if;
+   end Clear;
 
    procedure Init is
    begin
@@ -60,66 +69,63 @@ procedure AdaProject is
       Display.Initialize_Layer(1, RGB_565);
       Touch_Panel.Initialize;
       User_Button.Initialize;
-      LCD_Std_Out.Set_Font(BMP_Fonts.Font12x12);
-      LCD_Std_Out.Current_Background_Color := BG;
+
+      STM32.Board.Initialize_Gyro_IO;
+
+      Gyro.Reset;
+
+      Gyro.Configure
+        (Power_Mode       => L3GD20_Mode_Active,
+         Output_Data_Rate => L3GD20_Output_Data_Rate_95Hz,
+         Axes_Enable      => L3GD20_Axes_Enable,
+         Bandwidth        => L3GD20_Bandwidth_1,
+         BlockData_Update => L3GD20_BlockDataUpdate_Continous,
+         Endianness       => L3GD20_Little_Endian,
+         Full_Scale       => L3GD20_Fullscale_250);
+
+      Enable_Clock (MEMS_INT2);
+      Configure_IO (MEMS_INT2, (Mode => Mode_In, Resistors => Floating));
+
+      Configure_Trigger (MEMS_INT2, Interrupt_Rising_Edge);
+
+      Gyro.Enable_Data_Ready_Interrupt;
+
       Clear(True);
    end Init;
 
-   procedure Clear(Update : Boolean) is
-   begin
-      Display.Hidden_Buffer(1).Set_Source(BG);
-      Display.Hidden_Buffer(1).Fill;
-      LCD_Std_Out.Clear_Screen;
-      if Update then
-         Display.Update_Layer(1, Copy_Back => False);
-      end if;
-   end Clear;
-
-   C1, C2, C3, C4 : Circles.CircleAcc;
    R0, R1, R2, R3 : Rectangles.RectangleAcc;
    W1 : Worlds.World;
-   VecZero, LatSpeed : Vec2D;
-   Vec1, Vec2, Grav : Vec2D;
+   VecZero : constant Vec2D := (0.0, 0.0);
+   Vec1, Vec2 : Vec2D;
 
    fps : constant Float := 24.0;
    dt : constant Float := 1.0 / fps;
    cd : constant Integer := 10; -- * dt
 
    -- if true, the world will no longer update (blue button)
-   Frozen : Boolean := True;
+   Frozen : Boolean := False;
    Cooldown : Integer := 0;
    Tick : Integer := 0;
 
 begin
-   VecZero := Vec2D'(x => 0.0, y => 0.0);
-   LatSpeed := Vec2D'(x => 50.0, y => 0.0);
-   Vec1 := Vec2D'(x => 20.0, y => 10.0);
-   Vec2 := Vec2D'(x => 50.0, y => 10.0);
-   Grav := Vec2D'(x => 0.0, y => 9.81);
-
-   C1 := Circles.Create(Vec1, LatSpeed, Grav, 5.0, Materials.RUBBER);
-   C2 := Circles.Create(Vec2, VecZero, Grav, 2.0, Materials.RUBBER);
-   C3 := Circles.Create(Vec1 + Vec2, -LatSpeed, Grav, 15.0, Materials.RUBBER);
-   C4 := Circles.Create(2.0 * Vec2 - Vec1, VecZero, Grav, 6.0, Materials.RUBBER);
-
    -- Ceiling
-   Vec1 := Vec2D'(x => 5.0, y => 0.0);
-   Vec2 := Vec2D'(x => 230.0, y => 5.0);
+   Vec1 := Vec2D'(x => 10.0, y => 0.0);
+   Vec2 := Vec2D'(x => 220.0, y => 10.0);
    R0 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
 
    -- Floor
-   Vec1 := Vec2D'(x => 0.0, y => 300.0);
-   Vec2 := Vec2D'(x => 240.0, y => 20.0);
+   Vec1 := Vec2D'(x => 0.0, y => 310.0);
+   Vec2 := Vec2D'(x => 240.0, y => 10.0);
    R1 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
 
    -- Right wall
-   Vec1 := Vec2D'(x => 235.0, y => 0.0);
-   Vec2 := Vec2D'(x => 5.0, y => 300.0);
+   Vec1 := Vec2D'(x => 230.0, y => 0.0);
+   Vec2 := Vec2D'(x => 10.0, y => 310.0);
    R2 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
 
    -- Left wall
    Vec1 := Vec2D'(x => 0.0, y => 0.0);
-   Vec2 := Vec2D'(x => 5.0, y => 300.0);
+   Vec2 := Vec2D'(x => 10.0, y => 310.0);
    R3 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
 
    W1.Init(dt);
@@ -129,46 +135,32 @@ begin
    W1.Add(R2);
    W1.Add(R3);
 
-   W1.Add(C1);
-   W1.Add(C2);
-   W1.Add(C3);
-   W1.Add(C4);
-
-   -- crashes for Imax = 60 with Step(), not with StepLowSRAM()
-   for I in 1 .. 50 loop
-      C1 := Circles.Create((Float(I) * 4.0 + 10.0, Float(I) * 4.0 + 10.0), VecZero, Grav, 2.0, Materials.RUBBER);
-      W1.Add(C1);
-   end loop;
-
    Init;
    loop
-      -- gets the user inputs and updates the world accordingly
-      if Inputs(W1, Frozen, Cooldown) then
-         Cooldown := cd; -- reset cooldown
+
+      if Cooldown > 0 then
+         Cooldown := Cooldown - 1;
       end if;
+
       if not Frozen then
          Tick := Tick + 1;
-         -- update the world for one tick (dt) (too mem intense for the STM32F429)
-         -- W1.Step;
-
          -- update the world for one tick (dt) with low sram usage
          -- InvalidEnt'Access is an access to a function that tells
          -- is an ent is valid or not (outside of the screen -> delete)
          W1.StepLowRAM(InvalidEnt'Access);
       end if;
 
-      -- check if entities are valid (prevents card crash) now done in StepLowSRAM
-      -- CheckEntities(W1);
+      -- clear buffer for next render
+      Clear(False);
+
+      -- gets the user inputs and updates the world accordingly
+      if Inputs(W1, Frozen, Cooldown) then
+         Cooldown := cd; -- reset cooldown
+      end if;
 
       -- renders
       Render(W1.GetEntities);
 
-      -- clear buffer for next render
-      Clear(False);
-
-      if Cooldown > 0 then
-         Cooldown := Cooldown - 1;
-      end if;
    end loop;
 
 end AdaProject;
