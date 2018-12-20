@@ -18,7 +18,7 @@ package body Renderer is
                declare
                   C : constant CircleAcc := CircleAcc(E);
                begin
-                  if C.all.Mat.Density = 0.0 then
+                  if C.all.InvMass = 0.0 then
                       Display.Hidden_Buffer(1).Fill_Circle
                        (
                         Center => GetIntCoords(C.all.Coords),
@@ -37,7 +37,7 @@ package body Renderer is
                declare
                   R : constant RectangleAcc := RectangleAcc(E);
                begin
-                  if R.all.Mat.Density = 0.0 then
+                  if R.all.InvMass = 0.0 then
                      Display.Hidden_Buffer(1).Fill_Rect
                        (
                         Area => (Position => GetIntCoords(R.all.Coords),

@@ -65,6 +65,7 @@ procedure AdaProject is
 
    procedure Init is
    begin
+      STM32.Board.Initialize_LEDs;
       Display.Initialize;
       Display.Initialize_Layer(1, RGB_565);
       Touch_Panel.Initialize;
