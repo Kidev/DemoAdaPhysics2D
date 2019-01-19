@@ -24,7 +24,7 @@ package body GameLogic is
       Shaked : Boolean := False;
       PushVec : Vec2D := (0.0, 0.0);
       Threshold : constant Angle_Rate := 100;
-      Multiplier : constant Float := 1.0;
+      Multiplier : constant Float := 0.02;
    begin
       Get_Raw_Angle_Rates (Gyro, Axes);
 
@@ -72,7 +72,7 @@ package body GameLogic is
          end if;
          if Shaked then
             for E of W.GetEntities loop
-               E.all.ApplyForce(PushVec * Multiplier);
+               E.all.ApplyForce(PushVec * (1.0 / E.InvMass) * Multiplier);
             end loop;
             return True;
          end if;
