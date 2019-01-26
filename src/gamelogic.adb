@@ -14,6 +14,7 @@ package body GameLogic is
    Hold : Natural := 0;
    LastX, LastY : Integer := 0;
    GlobalGravity : constant Vec2D := (0.0, 0.0);
+   MaxHold : constant Natural := 40;
    type Modes is (M_Frozen, M_Disabled, M_Circle, M_Rectangle);
    Mode : Modes := M_Disabled;
 
@@ -37,7 +38,7 @@ package body GameLogic is
       -- Entity creator
       if Cooldown = 0 then 
          if State'Length = 1 then
-            Hold := Integer'Min(Hold + 1, 20);
+            Hold := Natural'Min(Hold + 1, MaxHold);
             LastX := State(State'First).X;
             LastY := State(State'First).Y;
             if LastX > 0 and LastY > 0 and Hold > 0 then
@@ -51,7 +52,7 @@ package body GameLogic is
             return True;
          end if;
       elsif State'Length = 1 then
-         Hold := Integer'Min(Hold + 1, 20);
+         Hold := Natural'Min(Hold + 1, MaxHold);
          LastX := State(State'First).X;
          LastY := State(State'First).Y;
          if LastX > 0 and LastY > 0 and Hold > 0 then
@@ -99,66 +100,57 @@ package body GameLogic is
       end if;
    end ModeActions;
    
-   procedure CreateEntity(W : in out World; X, Y, Hold : Integer)
+   procedure CreateEntity(W : in out World; X, Y : Integer; H : Natural)
    is
    begin
       case Mode is
-         when M_Circle => CreateCircle(W, X, Y, Hold);
-         when M_Rectangle => CreateRectangle(W, X, Y, Hold);
+         when M_Circle => CreateCircle(W, X, Y, H);
+         when M_Rectangle => CreateRectangle(W, X, Y, H);
          when M_Disabled | M_Frozen => null; -- TODO create push from touch ?
       end case;  
    end CreateEntity;
    
-   procedure DisplayEntity(X, Y, Hold : Integer)
+   procedure DisplayEntity(X, Y : Integer; H : Natural)
    is
    begin
       case Mode is
-         when M_Circle => DisplayCircle(X, Y, Hold);
-         when M_Rectangle => DisplayRectangle(X, Y, Hold);
+         when M_Circle => DisplayCircle(X, Y, H);
+         when M_Rectangle => DisplayRectangle(X, Y, H);
          when M_Disabled | M_Frozen => null;
       end case;  
    end DisplayEntity;
    
-   procedure DisplayCircle(X, Y, Hold : Integer)
+   procedure DisplayCircle(X, Y : Integer; H : Natural)
    is
    begin
       Display.Hidden_Buffer(1).Set_Source(Red);
-      Display.Hidden_Buffer(1).Draw_Circle
-                    (
-                     Center => (X, Y),
-                     Radius => (Hold * 2)
-                    );
+      Display.Hidden_Buffer(1).Draw_Circle((X, Y), H);
    end DisplayCircle;
 
-   procedure CreateCircle(W : in out World; X, Y, Hold : Integer)
+   procedure CreateCircle(W : in out World; X, Y : Integer; H : Natural)
    is
       C : Circles.CircleAcc;
       VecZero : constant Vec2D := (0.0, 0.0);
       VecPos : constant Vec2D := (Float(X), Float(Y));
    begin
-      C := Circles.Create(VecPos, VecZero, GlobalGravity, Float(Hold) * 2.0, Materials.RUBBER);
+      C := Circles.Create(VecPos, VecZero, GlobalGravity, Float(H), Materials.RUBBER);
       W.Add(C);
    end CreateCircle;
    
-   procedure DisplayRectangle(X, Y, Hold : Integer)
+   procedure DisplayRectangle(X, Y : Integer; H : Natural)
    is
    begin
       Display.Hidden_Buffer(1).Set_Source(Red);
-      Display.Hidden_Buffer(1).Draw_Rect
-                       (
-                        Area => (Position => (X - Hold, Y - Hold),
-                                 Height => Hold * 2,
-                                 Width => Hold * 2)
-                       ); 
+      Display.Hidden_Buffer(1).Draw_Rect(((X, Y), H * 1, H * 1));
    end DisplayRectangle;
 
-   procedure CreateRectangle(W : in out World; X, Y, Hold : Integer)
+   procedure CreateRectangle(W : in out World; X, Y : Integer; H : Natural)
    is
       R : Rectangles.RectangleAcc;
       VecZero : constant Vec2D := (0.0, 0.0);
-      VecPos : constant Vec2D := (Float(X) - Float(Hold), Float(Y) - Float(Hold));
+      VecPos : constant Vec2D := (Float(X), Float(Y));
    begin
-      R := Rectangles.Create(VecPos, VecZero, GlobalGravity, (Float(Hold), Float(Hold)) * 2.0, Materials.RUBBER);
+      R := Rectangles.Create(VecPos, VecZero, GlobalGravity, (Float(H), Float(H)) * 1.0, Materials.RUBBER);
       W.Add(R);
    end CreateRectangle;
 

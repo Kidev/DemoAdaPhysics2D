@@ -44,6 +44,12 @@ with HAL.Bitmap; use HAL.Bitmap;
 with STM32.User_Button; use STM32;
 with MainMenu; use MainMenu;
 
+-- Debug prints
+with Ada.Exceptions; use Ada.Exceptions;
+with LCD_Std_Out;
+with BMP_Fonts;
+with Utils;
+
 procedure AdaProject is begin
 
    STM32.Board.Initialize_LEDs;
@@ -51,6 +57,10 @@ procedure AdaProject is begin
    Display.Initialize_Layer(1, RGB_565);
    Touch_Panel.Initialize;
    User_Button.Initialize;
+
+   -- Debug prints
+   LCD_Std_Out.Set_Font (BMP_Fonts.Font8x8);
+   LCD_Std_Out.Current_Background_Color := Utils.BG;
 
    STM32.Board.Initialize_Gyro_IO;
 
@@ -72,6 +82,12 @@ procedure AdaProject is begin
 
    Gyro.Enable_Data_Ready_Interrupt;
 
-   ShowMenu;
+   begin
+      ShowMenu;
+   exception
+      when Error: others =>
+         LCD_Std_Out.Put_Line(Exception_Information(Error));
+         loop null; end loop;
+   end;
 
 end AdaProject;

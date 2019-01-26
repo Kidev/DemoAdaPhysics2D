@@ -45,6 +45,7 @@ package body AdaPhysics2DDemo is
       R3 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
 
       W1.Init(dt);
+      W1.SetInvalidChecker(InvalidEnt'Access);
 
       W1.Add(R0);
       W1.Add(R1);
@@ -64,7 +65,7 @@ package body AdaPhysics2DDemo is
             -- update the world for one tick (dt) with low sram usage
             -- InvalidEnt'Access is an access to a function that tells
             -- is an ent is valid or not (outside of the screen -> delete)
-            W1.StepLowRAM(InvalidEnt'Access);
+            W1.Step;
          end if;
 
          -- clear buffer for next render

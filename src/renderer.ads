@@ -15,9 +15,6 @@ package Renderer is
    -- Gets the color appropriate for the material
    function GetColor(Mat : in Material) return Bitmap_Color;
 
-   -- Checks if entities are valid: if not, they are removed
-   procedure CheckEntities(W : in out World);
-
    -- Tells if an entity is invalid
    function InvalidEnt(E : access Entity'Class) return Boolean;
 

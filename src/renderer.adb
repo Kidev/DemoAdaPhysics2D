@@ -74,26 +74,6 @@ package body Renderer is
       end case;
    end GetColor;
    
-   procedure CheckEntities(W : in out World)
-   is
-   begin
-      loop
-         declare
-            Ents : constant EArray := W.GetEntities;
-            Edited : Boolean := False;
-         begin
-            for E of Ents loop
-               if InvalidEnt(E) then
-                  Edited := True;
-                  W.Remove(E, True);
-                  exit;
-               end if;
-            end loop;
-            exit when not Edited;
-         end;
-      end loop;
-   end CheckEntities;
-   
    function InvalidEnt(E : access Entity'Class) return Boolean
    is
    begin

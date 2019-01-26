@@ -1,6 +1,6 @@
 [submodule "Ada_Drivers_Library"]
 	path = Ada_Drivers_Library
-	url = https://github.com/AdaCore/Ada_Drivers_Library/
+	url = https://github.com/Kidev/Ada_Drivers_Library
 [submodule "AdaPhysics2D"]
 	path = AdaPhysics2D
 	url = https://github.com/Kidev/AdaPhysics2D
