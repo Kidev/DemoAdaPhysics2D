@@ -65,7 +65,7 @@ package body AdaPhysics2DDemo is
             -- update the world for one tick (dt) with low sram usage
             -- InvalidEnt'Access is an access to a function that tells
             -- is an ent is valid or not (outside of the screen -> delete)
-            W1.Step;
+            W1.StepLowRAM;
          end if;
 
          -- clear buffer for next render
