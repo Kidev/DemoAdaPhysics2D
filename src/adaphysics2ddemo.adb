@@ -46,7 +46,7 @@ package body AdaPhysics2DDemo is
 
       W1.Init(dt);
       W1.SetInvalidChecker(InvalidEnt'Access);
-      W1.SetEnvironment(Materials.AIR);
+      W1.SetEnvironment(Materials.VACUUM);
 
       W1.Add(R0);
       W1.Add(R1);

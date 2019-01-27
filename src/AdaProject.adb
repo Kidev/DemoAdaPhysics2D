@@ -86,6 +86,7 @@ procedure AdaProject is begin
       ShowMenu;
    exception
       when Error: others =>
+         Utils.Clear(True);
          LCD_Std_Out.Put_Line(Exception_Information(Error));
          loop null; end loop;
    end;
