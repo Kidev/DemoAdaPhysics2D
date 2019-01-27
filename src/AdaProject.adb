@@ -87,6 +87,7 @@ procedure AdaProject is begin
    exception
       when Error: others =>
          Utils.Clear(True);
+         LCD_Std_Out.Clear_Screen;
          LCD_Std_Out.Put_Line(Exception_Information(Error));
          loop null; end loop;
    end;

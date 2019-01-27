@@ -2,9 +2,11 @@ with HAL.Touch_Panel; use HAL.Touch_Panel;
 with HAL.Bitmap; use HAL.Bitmap;
 with STM32.Board; use STM32.Board;
 with Bitmapped_Drawing; use Bitmapped_Drawing;
+with STM32.User_Button; use STM32;
 with AdaPhysics2DDemo;
 with Utils;
 with BMP_Fonts;
+with LCD_Std_Out;
 
 package body MainMenu is
 
@@ -28,7 +30,7 @@ package body MainMenu is
                if X >= 20 and X <= 220 and Y >= 20 and Y <= 120 then
                   Action := AdaPhysics2DDemo.Start'Access;
                elsif X >= 20 and X <= 220 and Y >= 140 and Y <= 240 then
-                  Action := null;
+                  Action := ShowHelpScreen'Access;
                end if;
             end if;
          end;
@@ -71,5 +73,38 @@ package body MainMenu is
       Display.Update_Layer(1, Copy_Back => False);
 
    end DrawMenu;
+
+   procedure ShowHelpScreen is
+   begin
+      Utils.Clear(True);
+      Utils.Clear(True);
+
+      LCD_Std_Out.Clear_Screen;
+      LCD_Std_Out.Put_Line("Demo of AdaPhysics2D by Kidev");
+      LCD_Std_Out.New_Line;
+      LCD_Std_Out.New_Line;
+      LCD_Std_Out.Put_Line("Blue button to change mode:");
+      LCD_Std_Out.Put_Line("- Touch screen is off");
+      LCD_Std_Out.Put_Line("- Touch to create a circle");
+      LCD_Std_Out.Put_Line("- Touch to create a rectangle");
+      LCD_Std_Out.Put_Line("- Touch to change environment");
+      LCD_Std_Out.Put_Line("  Also freezes the physics");
+      LCD_Std_Out.New_Line;
+      LCD_Std_Out.Put_Line("Try to shake the board !");
+      LCD_Std_Out.New_Line;
+      LCD_Std_Out.New_Line;
+      LCD_Std_Out.Put_Line("TOUCH TO GO BACK TO MENU");
+
+      loop
+         declare
+            State : constant TP_State := Touch_Panel.Get_All_Touch_Points;
+         begin
+            exit when State'Length >= 1 or User_Button.Has_Been_Pressed;
+         end;
+      end loop;
+
+      ShowMenu;
+
+   end ShowHelpScreen;
 
 end MainMenu;

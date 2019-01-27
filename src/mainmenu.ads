@@ -4,4 +4,6 @@ package MainMenu is
 
    procedure DrawMenu;
 
+   procedure ShowHelpScreen;
+
 end MainMenu;
