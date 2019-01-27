@@ -17,7 +17,7 @@ package body AdaPhysics2DDemo is
 
       fps : constant Float := 24.0;
       dt : constant Float := 1.0 / fps;
-      cd : constant Integer := 10; -- * dt
+      cd : constant Integer := 10; -- * dt | cooldown
 
       -- if true, the world will no longer update (blue button)
       Frozen : Boolean := False;
@@ -46,6 +46,7 @@ package body AdaPhysics2DDemo is
 
       W1.Init(dt);
       W1.SetInvalidChecker(InvalidEnt'Access);
+      W1.SetEnvironment(Materials.AIR);
 
       W1.Add(R0);
       W1.Add(R1);
