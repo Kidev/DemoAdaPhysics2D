@@ -9,7 +9,7 @@ with Rectangles;
 with Vectors2D; use Vectors2D;
 with Materials;
 
-package body GameLogic is
+package body DemoLogic is
      
    Hold : Natural := 0;
    LastX, LastY : Integer := 0;
@@ -165,5 +165,5 @@ package body GameLogic is
       end case;
    end ChangeEnvironment;
 
-end GameLogic;
+end DemoLogic;
 

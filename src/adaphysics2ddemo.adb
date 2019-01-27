@@ -3,7 +3,7 @@ with Worlds;
 with Materials;
 with Vectors2D; use Vectors2D;
 with Renderer; use Renderer;
-with GameLogic; use GameLogic;
+with DemoLogic; use DemoLogic;
 with Utils; use Utils;
 
 package body AdaPhysics2DDemo is

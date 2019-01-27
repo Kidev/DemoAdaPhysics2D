@@ -1,6 +1,6 @@
 with Worlds; use Worlds;
 
-package GameLogic is
+package DemoLogic is
 
    function Inputs(W : in out World; Frozen : in out Boolean; Cooldown : Integer) return Boolean;
    
@@ -20,4 +20,4 @@ package GameLogic is
    
    procedure ChangeEnvironment(W : in out World);
 
-end GameLogic;
+end DemoLogic;
