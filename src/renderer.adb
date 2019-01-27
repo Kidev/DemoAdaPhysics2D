@@ -74,6 +74,16 @@ package body Renderer is
       end case;
    end GetColor;
    
+   function GetEnvColor(Env : Environment) return Bitmap_Color
+   is
+   begin
+      case Env.EType is
+         when ETVacuum => return Black;
+         when ETAir => return Dim_Grey;
+         when ETWater => return Aqua;
+      end case;
+   end GetEnvColor;
+   
    function InvalidEnt(E : access Entity'Class) return Boolean
    is
    begin

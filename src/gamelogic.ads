@@ -17,5 +17,7 @@ package GameLogic is
    procedure DisplayRectangle(X, Y : Integer; H : Natural);
 
    procedure CreateRectangle(W : in out World; X, Y : Integer; H : Natural);
+   
+   procedure ChangeEnvironment(W : in out World);
 
 end GameLogic;

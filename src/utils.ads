@@ -4,6 +4,6 @@ package Utils is
 
    BG : constant Bitmap_Color := (Alpha => 255, others => 0);
 
-   procedure Clear(Update : Boolean);
+   procedure Clear(Update : Boolean; Color : Bitmap_Color := BG);
 
 end Utils;

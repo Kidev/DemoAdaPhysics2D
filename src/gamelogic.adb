@@ -106,7 +106,8 @@ package body GameLogic is
       case Mode is
          when M_Circle => CreateCircle(W, X, Y, H);
          when M_Rectangle => CreateRectangle(W, X, Y, H);
-         when M_Disabled | M_Frozen => null; -- TODO create push from touch ?
+         when M_Disabled => null;
+         when M_Frozen => ChangeEnvironment(W);
       end case;  
    end CreateEntity;
    
@@ -153,6 +154,16 @@ package body GameLogic is
       R := Rectangles.Create(VecPos, VecZero, GlobalGravity, (Float(H), Float(H)) * 1.0, Materials.RUBBER);
       W.Add(R);
    end CreateRectangle;
+   
+   procedure ChangeEnvironment(W : in out World)
+   is
+   begin
+      case W.Env.EType is
+         when Materials.ETVacuum => W.SetEnvironment(Materials.AIR);
+         when Materials.ETAir => W.SetEnvironment(Materials.WATER);
+         when Materials.ETWater => W.SetEnvironment(Materials.VACUUM);
+      end case;
+   end ChangeEnvironment;
 
 end GameLogic;
 

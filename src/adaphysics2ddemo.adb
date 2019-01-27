@@ -70,7 +70,7 @@ package body AdaPhysics2DDemo is
          end if;
 
          -- clear buffer for next render
-         Clear(False);
+         Clear(False, GetEnvColor(W1.Env));
 
          -- gets the user inputs and updates the world accordingly
          if Inputs(W1, Frozen, Cooldown) then
