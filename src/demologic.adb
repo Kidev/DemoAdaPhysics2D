@@ -14,7 +14,7 @@ package body DemoLogic is
      
    Hold : Natural := 0;
    LastX, LastY : Integer := 0;
-   GlobalGravity : constant Vec2D := (0.0, 0.0);
+   GlobalGravity : constant Vec2D := (0.0, 9.81);
    MaxHold : constant Natural := 40;
    type Modes is (M_Frozen, M_Disabled, M_Circle, M_Rectangle);
    Mode : Modes := M_Disabled;
@@ -38,7 +38,7 @@ package body DemoLogic is
 
       -- Entity creator
       if Cooldown = 0 then 
-         if State'Length = 1 then
+         if State'Length >= 1 then
             Hold := Natural'Min(Hold + 1, MaxHold);
             LastX := State(State'First).X;
             LastY := State(State'First).Y;
@@ -52,7 +52,7 @@ package body DemoLogic is
             Hold := 0;
             return True;
          end if;
-      elsif State'Length = 1 then
+      elsif State'Length >= 1 then
          Hold := Natural'Min(Hold + 1, MaxHold);
          LastX := State(State'First).X;
          LastY := State(State'First).Y;
