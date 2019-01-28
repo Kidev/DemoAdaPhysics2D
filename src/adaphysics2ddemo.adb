@@ -49,7 +49,7 @@ package body AdaPhysics2DDemo is
       -- Top air env
       Vec1 := Vec2D'(x => 10.0, y => 10.0);
       Vec2 := Vec2D'(x => 220.0, y => 250.0);
-      EAir := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.AIR);
+      EAir := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.VACUUM);
       
       -- Bottom water env
       Vec1 := Vec2D'(x => 10.0, y => 250.0);
