@@ -10,13 +10,13 @@ package body AdaPhysics2DDemo is
 
    procedure Start
    is
-      R0, R1, R2, R3 : Rectangles.RectangleAcc;
-      E0 : Rectangles.RectangleAcc;
+      SCeiling, SFloor, SRight, SLeft : Rectangles.RectangleAcc;
+      EAir, EWater : Rectangles.RectangleAcc;
       W1 : Worlds.World;
       VecZero : constant Vec2D := (0.0, 0.0);
       Vec1, Vec2 : Vec2D;
 
-      MaxEnt : constant Natural := 32;
+      MaxEnt : constant Natural := 32; -- max ents + envs. 0 = unlimited
       fps : constant Float := 24.0;
       dt : constant Float := 1.0 / fps;
       cd : constant Integer := 10; -- * dt | cooldown
@@ -29,36 +29,43 @@ package body AdaPhysics2DDemo is
       -- Ceiling
       Vec1 := Vec2D'(x => 10.0, y => 0.0);
       Vec2 := Vec2D'(x => 220.0, y => 10.0);
-      R0 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
+      SCeiling := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
 
       -- Floor
       Vec1 := Vec2D'(x => 0.0, y => 310.0);
       Vec2 := Vec2D'(x => 240.0, y => 10.0);
-      R1 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
+      SFloor := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
 
       -- Right wall
       Vec1 := Vec2D'(x => 230.0, y => 0.0);
       Vec2 := Vec2D'(x => 10.0, y => 310.0);
-      R2 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
+      SRight := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
 
       -- Left wall
       Vec1 := Vec2D'(x => 0.0, y => 0.0);
       Vec2 := Vec2D'(x => 10.0, y => 310.0);
-      R3 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
+      SLeft := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
+      
+      -- Top air env
+      Vec1 := Vec2D'(x => 10.0, y => 10.0);
+      Vec2 := Vec2D'(x => 220.0, y => 250.0);
+      EAir := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.AIR);
       
       -- Bottom water env
       Vec1 := Vec2D'(x => 10.0, y => 250.0);
       Vec2 := Vec2D'(x => 220.0, y => 60.0);
-      E0 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.WATER);
+      EWater := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.WATER);
 
       W1.Init(dt, MaxEnt);
       W1.SetInvalidChecker(InvalidEnt'Access);
-      W1.AddEnvironment(E0);
 
-      W1.AddEntity(R0);
-      W1.AddEntity(R1);
-      W1.AddEntity(R2);
-      W1.AddEntity(R3);
+      W1.AddEnvironment(EWater);
+      W1.AddEnvironment(EAir);
+
+      W1.AddEntity(SCeiling);
+      W1.AddEntity(SFloor);
+      W1.AddEntity(SRight);
+      W1.AddEntity(SLeft);
    
       Clear(True);
    
@@ -80,10 +87,12 @@ package body AdaPhysics2DDemo is
          Clear(False);
 
          -- gets the user inputs and updates the world accordingly
+         -- TODO this should pass to Render the temp entities to get the user
+         -- a return a his actions, instead of drawing it itself (leading to issues)
          if Inputs(W1, Frozen, Cooldown) then
             Cooldown := cd; -- reset cooldown
          end if;
-
+         
          -- renders
          Render(W1);
 
