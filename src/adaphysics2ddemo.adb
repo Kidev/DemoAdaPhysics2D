@@ -11,7 +11,7 @@ package body AdaPhysics2DDemo is
    procedure Start
    is
       SCeiling, SFloor, SRight, SLeft : Rectangles.RectangleAcc;
-      EAir, EWater : Rectangles.RectangleAcc;
+      EVac, EWater : Rectangles.RectangleAcc;
       W1 : Worlds.World;
       VecZero : constant Vec2D := (0.0, 0.0);
       Vec1, Vec2 : Vec2D;
@@ -48,10 +48,10 @@ package body AdaPhysics2DDemo is
       Vec2 := Vec2D'(x => 10.0, y => 310.0);
       SLeft := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
       
-      -- Top air env
+      -- Top vacuum env
       Vec1 := Vec2D'(x => 10.0, y => 10.0);
       Vec2 := Vec2D'(x => 220.0, y => 250.0);
-      EAir := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.VACUUM);
+      EVac := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.VACUUM);
       
       -- Bottom water env
       Vec1 := Vec2D'(x => 10.0, y => 250.0);
@@ -61,9 +61,10 @@ package body AdaPhysics2DDemo is
       W1.Init(dt, MaxEnt);
       W1.SetInvalidChecker(InvalidEnt'Access);
 
-      -- Swapping the order of the two below calls fixes the hovering little balls bug ???? wtf
+      -- Swapping the order of the two below calls fixes the hovering little balls bug ????
+      -- wtf seriously ??? WHYYYY
       W1.AddEnvironment(EWater);
-      W1.AddEnvironment(EAir);
+      W1.AddEnvironment(EVac);
 
       W1.AddEntity(SCeiling);
       W1.AddEntity(SFloor);
@@ -90,8 +91,6 @@ package body AdaPhysics2DDemo is
          Clear(False);
 
          -- gets the user inputs and updates the world accordingly
-         -- TODO this should pass to Render the temp entities to get the user
-         -- a return a his actions, instead of drawing it itself (leading to issues)
          if Inputs(W1, Frozen, Cooldown, Cue) then
             Cooldown := cd; -- reset cooldown
          end if;

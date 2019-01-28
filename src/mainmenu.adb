@@ -13,6 +13,8 @@ package body MainMenu is
    procedure ShowMenu
    is
       Action : access procedure := null;
+      WaitTicks : constant Natural := 10;
+      Tick : Natural := 0;
    begin
       Utils.Clear(False);
 
@@ -23,7 +25,7 @@ package body MainMenu is
             State : constant TP_State := Touch_Panel.Get_All_Touch_Points;
             X, Y : Integer := 0;
          begin
-            if State'Length = 1 then
+            if Tick > WaitTicks and State'Length = 1 then
                X := State(State'First).X;
                Y := State(State'First).Y;
 
@@ -34,6 +36,7 @@ package body MainMenu is
                end if;
             end if;
          end;
+         Tick := Tick + 1;
          exit when Action /= null;
       end loop;
 
