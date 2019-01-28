@@ -10,10 +10,11 @@ with LCD_Std_Out;
 
 package body MainMenu is
 
+   WaitTicks : constant Natural := 100;
+
    procedure ShowMenu
    is
       Action : access procedure := null;
-      WaitTicks : constant Natural := 10;
       Tick : Natural := 0;
    begin
       Utils.Clear(False);
@@ -78,6 +79,7 @@ package body MainMenu is
    end DrawMenu;
 
    procedure ShowHelpScreen is
+      Tick : Natural := 0;
    begin
       Utils.Clear(True);
       Utils.Clear(True);
@@ -102,8 +104,9 @@ package body MainMenu is
          declare
             State : constant TP_State := Touch_Panel.Get_All_Touch_Points;
          begin
-            exit when State'Length >= 1 or User_Button.Has_Been_Pressed;
+            exit when Tick > WaitTicks and (State'Length >= 1 or User_Button.Has_Been_Pressed);
          end;
+         Tick := Tick + 1;
       end loop;
 
       ShowMenu;
