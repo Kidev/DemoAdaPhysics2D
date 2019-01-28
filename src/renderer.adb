@@ -4,14 +4,28 @@ with Rectangles; use Rectangles;
 
 package body Renderer is
    
-   procedure Render(W : in out World)
+   procedure Render(W : in out World; Cue : VisualCue)
    is
    begin
       RenderList(W.GetEnvironments);
       RenderList(W.GetEntities);
+      RenderCue(Cue);
       
       Display.Update_Layer(1, Copy_Back => False);
    end Render;
+   
+   procedure RenderCue(Cue : VisualCue) is
+   begin
+      if Cue.R >= 0 then
+         Display.Hidden_Buffer(1).Set_Source(GetColor(RUBBER));
+         case Cue.EntType is
+            when EntCircle =>
+               Display.Hidden_Buffer(1).Draw_Circle((Cue.X, Cue.Y), Cue.R);
+            when EntRectangle =>
+               Display.Hidden_Buffer(1).Draw_Rect(((Cue.X, Cue.Y), Cue.R, Cue.R));
+         end case;
+      end if;
+   end RenderCue;
 
    procedure RenderList(L : ListAcc)
    is

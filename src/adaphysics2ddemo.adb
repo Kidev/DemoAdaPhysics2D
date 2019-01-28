@@ -17,9 +17,11 @@ package body AdaPhysics2DDemo is
       Vec1, Vec2 : Vec2D;
 
       MaxEnt : constant Natural := 32; -- max ents + envs. 0 = unlimited
-      fps : constant Float := 24.0;
+      fps : constant Float := 30.0;
       dt : constant Float := 1.0 / fps;
       cd : constant Integer := 10; -- * dt | cooldown
+      
+      Cue : VisualCue;
 
       -- if true, the world will no longer update (blue button)
       Frozen : Boolean := False;
@@ -59,6 +61,7 @@ package body AdaPhysics2DDemo is
       W1.Init(dt, MaxEnt);
       W1.SetInvalidChecker(InvalidEnt'Access);
 
+      -- Swapping the order of the two below calls fixes the hovering little balls bug ???? wtf
       W1.AddEnvironment(EWater);
       W1.AddEnvironment(EAir);
 
@@ -89,12 +92,12 @@ package body AdaPhysics2DDemo is
          -- gets the user inputs and updates the world accordingly
          -- TODO this should pass to Render the temp entities to get the user
          -- a return a his actions, instead of drawing it itself (leading to issues)
-         if Inputs(W1, Frozen, Cooldown) then
+         if Inputs(W1, Frozen, Cooldown, Cue) then
             Cooldown := cd; -- reset cooldown
          end if;
          
          -- renders
-         Render(W1);
+         Render(W1, Cue);
 
       end loop;
    end Start;

@@ -1,10 +1,8 @@
 with HAL.Touch_Panel; use HAL.Touch_Panel;
-with HAL.Bitmap; use HAL.Bitmap;
 with STM32.Board; use STM32.Board;
 with STM32.GPIO; use STM32.GPIO;
 with STM32.User_Button; use STM32;
 with L3GD20; use L3GD20;
-with Entities; use Entities;
 with Circles;
 with Rectangles;
 with Vectors2D; use Vectors2D;
@@ -19,7 +17,8 @@ package body DemoLogic is
    type Modes is (M_Frozen, M_Disabled, M_Circle, M_Rectangle);
    Mode : Modes := M_Disabled;
 
-   function Inputs(W : in out World; Frozen : in out Boolean; Cooldown : Integer) return Boolean
+   function Inputs(W : in out World; Frozen : in out Boolean;
+                   Cooldown : Integer; Cue : in out VisualCue) return Boolean
    is
       State : constant TP_State := Touch_Panel.Get_All_Touch_Points;
       Axes : L3GD20.Angle_Rates;
@@ -29,6 +28,7 @@ package body DemoLogic is
       Multiplier : constant Float := 0.02;
    begin
       Get_Raw_Angle_Rates (Gyro, Axes);
+      Cue := VisualCue'(0, 0, -1, EntCircle);
 
       -- User button
       if User_Button.Has_Been_Pressed then
@@ -43,7 +43,7 @@ package body DemoLogic is
             LastX := State(State'First).X;
             LastY := State(State'First).Y;
             if LastX > 0 and LastY > 0 and Hold > 0 then
-               DisplayEntity(LastX, LastY, Hold);
+               DisplayEntity(LastX, LastY, Hold, Cue);
             end if;
          elsif Hold > 0 then
             if LastX > 0 and LastY > 0 and Hold > 0 then
@@ -57,7 +57,7 @@ package body DemoLogic is
          LastX := State(State'First).X;
          LastY := State(State'First).Y;
          if LastX > 0 and LastY > 0 and Hold > 0 then
-            DisplayEntity(LastX, LastY, Hold);
+            DisplayEntity(LastX, LastY, Hold, Cue);
          end if;
       end if;
       
@@ -120,22 +120,15 @@ package body DemoLogic is
       end case;  
    end CreateEntity;
    
-   procedure DisplayEntity(X, Y : Integer; H : Natural)
+   procedure DisplayEntity(X, Y : Integer; H : Natural; Cue : in out VisualCue)
    is
    begin
       case Mode is
-         when M_Circle => DisplayCircle(X, Y, H);
-         when M_Rectangle => DisplayRectangle(X, Y, H);
+         when M_Circle => Cue := VisualCue'(X, Y, H, EntCircle);
+         when M_Rectangle => Cue := VisualCue'(X, Y, H, EntRectangle);
          when M_Disabled | M_Frozen => null;
-      end case;  
+      end case;
    end DisplayEntity;
-   
-   procedure DisplayCircle(X, Y : Integer; H : Natural)
-   is
-   begin
-      Display.Hidden_Buffer(1).Set_Source(Red);
-      Display.Hidden_Buffer(1).Draw_Circle((X, Y), H);
-   end DisplayCircle;
 
    procedure CreateCircle(W : in out World; X, Y : Integer; H : Natural)
    is
@@ -146,13 +139,6 @@ package body DemoLogic is
       C := Circles.Create(VecPos, VecZero, GlobalGravity, Float(H), Materials.RUBBER);
       W.AddEntity(C);
    end CreateCircle;
-   
-   procedure DisplayRectangle(X, Y : Integer; H : Natural)
-   is
-   begin
-      Display.Hidden_Buffer(1).Set_Source(Red);
-      Display.Hidden_Buffer(1).Draw_Rect(((X, Y), H * 1, H * 1));
-   end DisplayRectangle;
 
    procedure CreateRectangle(W : in out World; X, Y : Integer; H : Natural)
    is
