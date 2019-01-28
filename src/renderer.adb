@@ -9,6 +9,8 @@ package body Renderer is
    begin
       RenderList(W.GetEnvironments);
       RenderList(W.GetEntities);
+      
+      Display.Update_Layer(1, Copy_Back => False);
    end Render;
 
    procedure RenderList(L : ListAcc)
@@ -30,7 +32,7 @@ package body Renderer is
                declare
                   C : constant CircleAcc := CircleAcc(E);
                begin
-                  if C.all.InvMass = 0.0 then
+                  if C.all.InvMass = 0.0 or else not IsSolidMaterial(C.Mat) then
                       Display.Hidden_Buffer(1).Fill_Circle
                        (
                         Center => GetIntCoords(C.all.Coords),
@@ -49,7 +51,7 @@ package body Renderer is
                declare
                   R : constant RectangleAcc := RectangleAcc(E);
                begin
-                  if R.all.InvMass = 0.0 then
+                  if R.all.InvMass = 0.0 or else not IsSolidMaterial(R.Mat) then
                      Display.Hidden_Buffer(1).Fill_Rect
                        (
                         Area => (Position => GetIntCoords(R.all.Coords),
@@ -70,8 +72,6 @@ package body Renderer is
          Curs := Next(Curs);
 
       end loop;
-
-      Display.Update_Layer(1, Copy_Back => False);
       
    end RenderList;
    
