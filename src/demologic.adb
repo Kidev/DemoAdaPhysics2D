@@ -4,6 +4,7 @@ with STM32.Board; use STM32.Board;
 with STM32.GPIO; use STM32.GPIO;
 with STM32.User_Button; use STM32;
 with L3GD20; use L3GD20;
+with Entities; use Entities;
 with Circles;
 with Rectangles;
 with Vectors2D; use Vectors2D;
@@ -72,9 +73,17 @@ package body DemoLogic is
             PushVec.x := PushVec.x + Float(Axes.Y);
          end if;
          if Shaked then
-            for E of W.GetEntities loop
-               E.all.ApplyForce(PushVec * (1.0 / E.InvMass) * Multiplier);
-            end loop;
+            declare
+               use DoublyLinkedListEnts;
+               Curs : Cursor := W.GetEntities.First;
+               E : access Entity'Class;
+            begin
+               while Curs /= No_Element loop
+                  E := Element(Curs);
+                  E.all.ApplyForce(PushVec * E.Mass * Multiplier);
+                  Curs := Next(Curs);
+               end loop;
+            end;
             return True;
          end if;
       end if;

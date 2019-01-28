@@ -4,7 +4,7 @@ with Rectangles; use Rectangles;
 
 package body Renderer is
    
-   procedure Render(W : World)
+   procedure Render(W : in out World)
    is
    begin
       RenderList(W.GetEnvironments);
@@ -13,9 +13,14 @@ package body Renderer is
 
    procedure RenderList(L : ListAcc)
    is
+      use DoublyLinkedListEnts;
+      Curs : Cursor := L.First;
+      E : access Entity'Class;
    begin
       
-      for E of L loop
+      while Curs /= No_Element loop
+         
+         E := Element(Curs);
          
          Display.Hidden_Buffer(1).Set_Source(GetColor(E.Mat));
          
@@ -61,12 +66,14 @@ package body Renderer is
                   end if;
                end;
          end case;
+         
+         Curs := Next(Curs);
 
       end loop;
 
       Display.Update_Layer(1, Copy_Back => False);
       
-   end Render;
+   end RenderList;
    
    function GetColor(Mat : in Material) return Bitmap_Color
    is

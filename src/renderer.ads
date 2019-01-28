@@ -7,7 +7,7 @@ with Materials; use Materials;
 package Renderer is
 
    -- Displays the entities passed
-   procedure Render(W : World);
+   procedure Render(W : in out World);
 
    procedure RenderList(L : ListAcc);
 
