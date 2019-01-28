@@ -11,7 +11,7 @@ package body AdaPhysics2DDemo is
    procedure Start
    is
       SCeiling, SFloor, SRight, SLeft : Rectangles.RectangleAcc;
-      EVac, EWater : Rectangles.RectangleAcc;
+      EAir, EWater : Rectangles.RectangleAcc;
       W1 : Worlds.World;
       VecZero : constant Vec2D := (0.0, 0.0);
       Vec1, Vec2 : Vec2D;
@@ -23,7 +23,7 @@ package body AdaPhysics2DDemo is
       
       Cue : VisualCue;
 
-      -- if true, the world will no longer update (blue button)
+      -- if true, the world will no longer update
       Frozen : Boolean := False;
       Cooldown : Integer := 0;
       Tick : Integer := 0;
@@ -51,7 +51,7 @@ package body AdaPhysics2DDemo is
       -- Top vacuum env
       Vec1 := Vec2D'(x => 10.0, y => 10.0);
       Vec2 := Vec2D'(x => 220.0, y => 250.0);
-      EVac := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.VACUUM);
+      EAir := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.AIR);
       
       -- Bottom water env
       Vec1 := Vec2D'(x => 10.0, y => 250.0);
@@ -61,10 +61,8 @@ package body AdaPhysics2DDemo is
       W1.Init(dt, MaxEnt);
       W1.SetInvalidChecker(InvalidEnt'Access);
 
-      -- Swapping the order of the two below calls fixes the hovering little balls bug ????
-      -- wtf seriously ??? WHYYYY
+      W1.AddEnvironment(EAir);
       W1.AddEnvironment(EWater);
-      W1.AddEnvironment(EVac);
 
       W1.AddEntity(SCeiling);
       W1.AddEntity(SFloor);
@@ -99,6 +97,9 @@ package body AdaPhysics2DDemo is
          Render(W1, Cue);
 
       end loop;
+      
+      --W1.Free;
+      
    end Start;
 
 end AdaPhysics2DDemo;

@@ -14,6 +14,7 @@ package body DemoLogic is
    LastX, LastY : Integer := 0;
    GlobalGravity : constant Vec2D := (0.0, 9.81);
    MaxHold : constant Natural := 40;
+   EntCreatorMat : constant Materials.Material := Materials.RUBBER;
    type Modes is (M_Frozen, M_Disabled, M_Circle, M_Rectangle);
    Mode : Modes := M_Disabled;
 
@@ -136,7 +137,7 @@ package body DemoLogic is
       VecZero : constant Vec2D := (0.0, 0.0);
       VecPos : constant Vec2D := (Float(X), Float(Y));
    begin
-      C := Circles.Create(VecPos, VecZero, GlobalGravity, Float(H), Materials.RUBBER);
+      C := Circles.Create(VecPos, VecZero, GlobalGravity, Float(H), EntCreatorMat);
       W.AddEntity(C);
    end CreateCircle;
 
@@ -146,7 +147,7 @@ package body DemoLogic is
       VecZero : constant Vec2D := (0.0, 0.0);
       VecPos : constant Vec2D := (Float(X), Float(Y));
    begin
-      R := Rectangles.Create(VecPos, VecZero, GlobalGravity, (Float(H), Float(H)) * 1.0, Materials.RUBBER);
+      R := Rectangles.Create(VecPos, VecZero, GlobalGravity, (Float(H), Float(H)) * 1.0, EntCreatorMat);
       W.AddEntity(R);
    end CreateRectangle;
    
