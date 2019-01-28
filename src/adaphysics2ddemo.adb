@@ -11,10 +11,12 @@ package body AdaPhysics2DDemo is
    procedure Start
    is
       R0, R1, R2, R3 : Rectangles.RectangleAcc;
+      E0 : Rectangles.RectangleAcc;
       W1 : Worlds.World;
       VecZero : constant Vec2D := (0.0, 0.0);
       Vec1, Vec2 : Vec2D;
 
+      MaxEnt : constant Natural := 32;
       fps : constant Float := 24.0;
       dt : constant Float := 1.0 / fps;
       cd : constant Integer := 10; -- * dt | cooldown
@@ -43,15 +45,20 @@ package body AdaPhysics2DDemo is
       Vec1 := Vec2D'(x => 0.0, y => 0.0);
       Vec2 := Vec2D'(x => 10.0, y => 310.0);
       R3 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.STATIC);
+      
+      -- Bottom water env
+      Vec1 := Vec2D'(x => 10.0, y => 250.0);
+      Vec2 := Vec2D'(x => 220.0, y => 60.0);
+      E0 := Rectangles.Create(Vec1, VecZero, VecZero, Vec2, Materials.WATER);
 
-      W1.Init(dt);
+      W1.Init(dt, MaxEnt);
       W1.SetInvalidChecker(InvalidEnt'Access);
-      W1.SetEnvironment(Materials.VACUUM);
+      W1.AddEnvironment(E0);
 
-      W1.Add(R0);
-      W1.Add(R1);
-      W1.Add(R2);
-      W1.Add(R3);
+      W1.AddEntity(R0);
+      W1.AddEntity(R1);
+      W1.AddEntity(R2);
+      W1.AddEntity(R3);
    
       Clear(True);
    
@@ -70,7 +77,7 @@ package body AdaPhysics2DDemo is
          end if;
 
          -- clear buffer for next render
-         Clear(False, GetEnvColor(W1.Env));
+         Clear(False);
 
          -- gets the user inputs and updates the world accordingly
          if Inputs(W1, Frozen, Cooldown) then
@@ -78,7 +85,7 @@ package body AdaPhysics2DDemo is
          end if;
 
          -- renders
-         Render(W1.GetEntities);
+         Render(W1);
 
       end loop;
    end Start;

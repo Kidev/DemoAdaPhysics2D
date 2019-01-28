@@ -135,7 +135,7 @@ package body DemoLogic is
       VecPos : constant Vec2D := (Float(X), Float(Y));
    begin
       C := Circles.Create(VecPos, VecZero, GlobalGravity, Float(H), Materials.RUBBER);
-      W.Add(C);
+      W.AddEntity(C);
    end CreateCircle;
    
    procedure DisplayRectangle(X, Y : Integer; H : Natural)
@@ -152,17 +152,13 @@ package body DemoLogic is
       VecPos : constant Vec2D := (Float(X), Float(Y));
    begin
       R := Rectangles.Create(VecPos, VecZero, GlobalGravity, (Float(H), Float(H)) * 1.0, Materials.RUBBER);
-      W.Add(R);
+      W.AddEntity(R);
    end CreateRectangle;
    
    procedure ChangeEnvironment(W : in out World)
    is
    begin
-      case W.Env.EType is
-         when Materials.ETVacuum => W.SetEnvironment(Materials.AIR);
-         when Materials.ETAir => W.SetEnvironment(Materials.WATER);
-         when Materials.ETWater => W.SetEnvironment(Materials.VACUUM);
-      end case;
+      null;
    end ChangeEnvironment;
 
 end DemoLogic;

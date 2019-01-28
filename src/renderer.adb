@@ -3,12 +3,19 @@ with Circles; use Circles;
 with Rectangles; use Rectangles;
 
 package body Renderer is
+   
+   procedure Render(W : World)
+   is
+   begin
+      RenderList(W.GetEnvironments);
+      RenderList(W.GetEntities);
+   end Render;
 
-   procedure Render(Ents : EArray)
+   procedure RenderList(L : ListAcc)
    is
    begin
       
-      for E of Ents loop
+      for E of L loop
          
          Display.Hidden_Buffer(1).Set_Source(GetColor(E.Mat));
          
@@ -71,18 +78,11 @@ package body Renderer is
          when MTConcrete => return Grey;
          when MTRubber => return Red;
          when MTWood => return Brown;
-      end case;
-   end GetColor;
-   
-   function GetEnvColor(Env : Environment) return Bitmap_Color
-   is
-   begin
-      case Env.EType is
          when ETVacuum => return Black;
          when ETAir => return Dim_Grey;
          when ETWater => return Aqua;
       end case;
-   end GetEnvColor;
+   end GetColor;
    
    function InvalidEnt(E : access Entity'Class) return Boolean
    is
