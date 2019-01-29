@@ -60,6 +60,7 @@ package body AdaPhysics2DDemo is
 
       W1.Init(dt, MaxEnt);
       W1.SetInvalidChecker(InvalidEnt'Access);
+      W1.SetMaxSpeed((100.0, 100.0));
 
       W1.AddEnvironment(EAir);
       W1.AddEnvironment(EWater);

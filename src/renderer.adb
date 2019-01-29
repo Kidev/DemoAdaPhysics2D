@@ -17,7 +17,7 @@ package body Renderer is
    procedure RenderCue(Cue : VisualCue) is
    begin
       if Cue.R >= 0 then
-         Display.Hidden_Buffer(1).Set_Source(GetColor(RUBBER));
+         Display.Hidden_Buffer(1).Set_Source(GetColor(Cue.Mat));
          case Cue.EntType is
             when EntCircle =>
                Display.Hidden_Buffer(1).Draw_Circle((Cue.X, Cue.Y), Cue.R);
@@ -99,6 +99,7 @@ package body Renderer is
          when MTConcrete => return Grey;
          when MTRubber => return Red;
          when MTWood => return Brown;
+         when MTBalloon => return White;
          when ETVacuum => return Black;
          when ETAir => return Dim_Grey;
          when ETWater => return Aqua;

@@ -6,7 +6,6 @@ with L3GD20; use L3GD20;
 with Circles;
 with Rectangles;
 with Vectors2D; use Vectors2D;
-with Materials;
 
 package body DemoLogic is
      
@@ -14,7 +13,7 @@ package body DemoLogic is
    LastX, LastY : Integer := 0;
    GlobalGravity : constant Vec2D := (0.0, 9.81);
    MaxHold : constant Natural := 40;
-   EntCreatorMat : constant Materials.Material := Materials.RUBBER;
+   EntCreatorMat : constant Materials.Material := Materials.BALLOON;
    type Modes is (M_Frozen, M_Disabled, M_Circle, M_Rectangle);
    Mode : Modes := M_Disabled;
 
@@ -29,7 +28,7 @@ package body DemoLogic is
       Multiplier : constant Float := 0.02;
    begin
       Get_Raw_Angle_Rates (Gyro, Axes);
-      Cue := VisualCue'(0, 0, -1, EntCircle);
+      Cue := VisualCue'(0, 0, -1, EntCircle, EntCreatorMat);
 
       -- User button
       if User_Button.Has_Been_Pressed then
@@ -125,8 +124,8 @@ package body DemoLogic is
    is
    begin
       case Mode is
-         when M_Circle => Cue := VisualCue'(X, Y, H, EntCircle);
-         when M_Rectangle => Cue := VisualCue'(X, Y, H, EntRectangle);
+         when M_Circle => Cue := VisualCue'(X, Y, H, EntCircle, EntCreatorMat);
+         when M_Rectangle => Cue := VisualCue'(X, Y, H, EntRectangle, EntCreatorMat);
          when M_Disabled | M_Frozen => null;
       end case;
    end DisplayEntity;

@@ -1,11 +1,13 @@
 with Worlds; use Worlds;
 with Entities; use Entities;
+with Materials; use Materials;
 
 package DemoLogic is
    
    type VisualCue is record
       X, Y, R : Integer;
       EntType : EntityTypes;
+      Mat : Material;
    end record;
 
    function Inputs(W : in out World; Frozen : in out Boolean;
