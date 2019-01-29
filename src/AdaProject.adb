@@ -50,7 +50,9 @@ with LCD_Std_Out;
 with BMP_Fonts;
 with Utils;
 
-procedure AdaProject is begin
+procedure AdaProject is
+   pragma Assertion_Policy (Check);
+begin
 
    STM32.Board.Initialize_LEDs;
    Display.Initialize;
@@ -83,7 +85,7 @@ procedure AdaProject is begin
    Gyro.Enable_Data_Ready_Interrupt;
 
    begin
-      ShowMenu;
+      ShowMainMenu;
    exception
       when Error: others =>
          Utils.Clear(True);

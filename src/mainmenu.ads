@@ -1,6 +1,6 @@
 package MainMenu is
 
-   procedure ShowMenu;
+   procedure ShowMainMenu;
 
    procedure DrawMenu;
 

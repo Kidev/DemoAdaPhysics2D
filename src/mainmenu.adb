@@ -3,16 +3,15 @@ with HAL.Bitmap; use HAL.Bitmap;
 with STM32.Board; use STM32.Board;
 with Bitmapped_Drawing; use Bitmapped_Drawing;
 with STM32.User_Button; use STM32;
+with Menus; use Menus;
 with AdaPhysics2DDemo;
-with Utils;
 with BMP_Fonts;
 with LCD_Std_Out;
+with Utils;
 
 package body MainMenu is
 
-   WaitTicks : constant Natural := 100;
-
-   procedure ShowMenu
+   procedure ShowMainMenu
    is
       Action : access procedure := null;
       Tick : Natural := 0;
@@ -42,7 +41,7 @@ package body MainMenu is
       end loop;
 
       Action.all;
-   end ShowMenu;
+   end ShowMainMenu;
 
    procedure DrawMenu is
    begin
@@ -92,7 +91,7 @@ package body MainMenu is
       LCD_Std_Out.Put_Line("- Touch screen is off");
       LCD_Std_Out.Put_Line("- Touch to create a circle");
       LCD_Std_Out.Put_Line("- Touch to create a rectangle");
-      LCD_Std_Out.Put_Line("- Touch to change environment");
+      LCD_Std_Out.Put_Line("- Touch to change materials");
       LCD_Std_Out.Put_Line("  Also freezes the physics");
       LCD_Std_Out.New_Line;
       LCD_Std_Out.Put_Line("Try to shake the board !");
@@ -104,12 +103,12 @@ package body MainMenu is
          declare
             State : constant TP_State := Touch_Panel.Get_All_Touch_Points;
          begin
-            exit when Tick > WaitTicks and (State'Length >= 1 or User_Button.Has_Been_Pressed);
+            exit when Tick > Menus.WaitTicks and (State'Length >= 1 or User_Button.Has_Been_Pressed);
          end;
          Tick := Tick + 1;
       end loop;
 
-      ShowMenu;
+      ShowMainMenu;
 
    end ShowHelpScreen;
 
