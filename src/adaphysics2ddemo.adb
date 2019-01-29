@@ -8,7 +8,7 @@ with Utils; use Utils;
 
 package body AdaPhysics2DDemo is
 
-   procedure Start
+   procedure Start(This : in out Menu)
    is
       SCeiling, SFloor, SRight, SLeft : Rectangles.RectangleAcc;
       EAir, EWater : Rectangles.RectangleAcc;
@@ -28,6 +28,8 @@ package body AdaPhysics2DDemo is
       Cooldown : Integer := 0;
       Tick : Integer := 0;
    begin
+      This.Free;
+      
       -- Ceiling
       Vec1 := Vec2D'(x => 10.0, y => 0.0);
       Vec2 := Vec2D'(x => 220.0, y => 10.0);

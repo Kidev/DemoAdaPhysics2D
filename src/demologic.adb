@@ -6,16 +6,19 @@ with L3GD20; use L3GD20;
 with Circles;
 with Rectangles;
 with Vectors2D; use Vectors2D;
+with HAL.Bitmap; use HAL.Bitmap;
+with BMP_Fonts;
 
 package body DemoLogic is
      
    Hold : Natural := 0;
    LastX, LastY : Integer := 0;
-   GlobalGravity : constant Vec2D := (0.0, 9.81);
+   GlobalGravity : Vec2D := (0.0, 9.81);
    MaxHold : constant Natural := 40;
-   EntCreatorMat : constant Materials.Material := Materials.BALLOON;
+   EntCreatorMat : Materials.Material := Materials.BALLOON;
    type Modes is (M_Frozen, M_Disabled, M_Circle, M_Rectangle);
    Mode : Modes := M_Disabled;
+   CurWorld : World;
 
    function Inputs(W : in out World; Frozen : in out Boolean;
                    Cooldown : Integer; Cue : in out VisualCue) return Boolean
@@ -27,6 +30,7 @@ package body DemoLogic is
       Threshold : constant Angle_Rate := 100;
       Multiplier : constant Float := 0.02;
    begin
+      CurWorld := W;
       Get_Raw_Angle_Rates (Gyro, Axes);
       Cue := VisualCue'(0, 0, -1, EntCircle, EntCreatorMat);
 
@@ -34,6 +38,11 @@ package body DemoLogic is
       if User_Button.Has_Been_Pressed then
          Mode := Modes'Val((Modes'Pos(Mode) + 1) mod (Modes'Pos(Modes'Last) + 1));
          ModeActions(Frozen);
+         if Mode = M_Frozen then
+            ShowActionMenu;
+            Mode := Modes'Val((Modes'Pos(Mode) + 1) mod (Modes'Pos(Modes'Last) + 1));
+            ModeActions(Frozen);
+         end if;
       end if;
 
       -- Entity creator
@@ -109,6 +118,31 @@ package body DemoLogic is
       end if;
    end ModeActions;
    
+   procedure ShowActionMenu is
+      ActionMenu : Menu;
+   begin
+      ActionMenu.Init(Black, White, BMP_Fonts.Font12x12, Menu_Static);
+      ActionMenu.AddItem(GetGravityStr, (40, 200, 40, 80), ToggleGravity'Access);
+      ActionMenu.AddItem(GetMatName(EntCreatorMat), GotoNextMat'Access);
+      ActionMenu.Show;
+      ActionMenu.Listen;
+   end ShowActionMenu;
+                         
+   procedure ToggleGravity(This : in out Menu) is
+      use DoublyLinkedListEnts;
+      E : access Entity'Class;
+      Curs : Cursor := CurWorld.Entities.First;
+      Grav : constant Vec2D := (0.0, (if GlobalGravity.y = 0.0 then 9.81 else 0.0));
+   begin
+      GlobalGravity := Grav;
+      This.ChangeText(0, GetGravityStr);
+      while Curs /= No_Element loop
+         E := Element(Curs);
+         E.all.SetGravity(Grav);
+         Curs := Next(Curs);
+      end loop;
+   end ToggleGravity;
+   
    procedure CreateEntity(W : in out World; X, Y : Integer; H : Natural)
    is
    begin
@@ -116,7 +150,7 @@ package body DemoLogic is
          when M_Circle => CreateCircle(W, X, Y, H);
          when M_Rectangle => CreateRectangle(W, X, Y, H);
          when M_Disabled => null;
-         when M_Frozen => ChangeEnvironment(W);
+         when M_Frozen => null;
       end case;  
    end CreateEntity;
    
@@ -149,12 +183,37 @@ package body DemoLogic is
       R := Rectangles.Create(VecPos, VecZero, GlobalGravity, (Float(H), Float(H)) * 1.0, EntCreatorMat);
       W.AddEntity(R);
    end CreateRectangle;
+
+   function GetMatName(This : Material) return String
+   is
+      StrMat : constant String := MaterialType'Image(This.MType);
+   begin
+      return StrMat(StrMat'First + 2 .. StrMat'Last);
+   end GetMatName;
    
-   procedure ChangeEnvironment(W : in out World)
+   function GetGravityStr return String
    is
    begin
-      null;
-   end ChangeEnvironment;
+      if GlobalGravity.y = 0.0 then
+         return "GRAVITY OFF";
+      end if;
+      return "GRAVITY ON";
+   end GetGravityStr;
+   
+   procedure GotoNextMat(This : in out Menu) is
+   begin
+      case EntCreatorMat.MType is
+         when MTConcrete => EntCreatorMat := WOOD;
+         when MTWood => EntCreatorMat := STEEL;
+         when MTSteel => EntCreatorMat := RUBBER;
+         when MTRubber => EntCreatorMat := ICE;
+         when MTIce => EntCreatorMat := BALLOON;
+         when MTBalloon => EntCreatorMat := STATIC;
+         when MTStatic => EntCreatorMat := CONCRETE;
+         when others => EntCreatorMat := RUBBER;
+      end case;
+      This.ChangeText(1, GetMatName(EntCreatorMat));
+   end GotoNextMat;
 
 end DemoLogic;
 

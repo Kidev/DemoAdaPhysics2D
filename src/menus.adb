@@ -1,18 +1,20 @@
 with HAL.Touch_Panel; use HAL.Touch_Panel;
 with STM32.Board; use STM32.Board;
 with Bitmapped_Drawing; use Bitmapped_Drawing;
+with STM32.User_Button; use STM32;
 with Ada.Unchecked_Deallocation;
 with Ada.Strings;
 
 package body Menus is
 
-   procedure Init(This : in out Menu; Back, Fore : Bitmap_Color; Font : BMP_Font) is
+   procedure Init(This : in out Menu; Back, Fore : Bitmap_Color; Font : BMP_Font; MenuType : MenuTypes := Menu_Default) is
    begin
       This.Items := new List;
       This.Background := (0, 0, 0, 0);
       This.BackgroundColor := Back;
       This.ForegroundColor := Fore;
       This.Font := Font;
+      This.MenuType := MenuType;
    end Init;
    
    procedure AddItem(This : in out Menu; That : MenuItem) is
@@ -65,6 +67,7 @@ package body Menus is
       end loop;
       
       Display.Update_Layer(1, Copy_Back => True);
+      Display.Update_Layer(1, Copy_Back => True);
       
    end Show;
 
@@ -73,6 +76,9 @@ package body Menus is
       Action : MenuAction := null;
       Tick : Natural := 0;
    begin
+      
+<<Keep_Listening>>
+      
       loop
          declare
             State : constant TP_State := Touch_Panel.Get_All_Touch_Points;
@@ -80,6 +86,12 @@ package body Menus is
             Curs : Cursor := This.Items.First;
             Item : MenuItem;
          begin
+            if This.MenuType = Menu_Static and then User_Button.Has_Been_Pressed then
+               if Destroy then
+                  This.Free;
+               end if;
+               return;
+            end if;
             if Tick > WaitFor and State'Length = 1 then
                X := State(State'First).X;
                Y := State(State'First).Y;
@@ -103,12 +115,20 @@ package body Menus is
          Tick := Tick + 1;
          exit when Action /= null;
       end loop;
-      
-      if Destroy then
-         This.Free;
+
+      if Action /= null then
+         Action.all(This);
+         
+         if This.MenuType = Menu_Static then
+            This.Show;
+         end if;
       end if;
       
-      Action.all;
+      if This.MenuType = Menu_Static then
+         Action := null;
+         Tick := 0;
+         goto Keep_Listening; -- prevents recursion, if I This.Listen the stack grows too much
+      end if;
       
    end Listen;
 
@@ -142,5 +162,22 @@ package body Menus is
                   Foreground => Fore,
                   Background => Back);
    end DrawText;
+   
+   procedure ChangeText(This : in out Menu; Index : Natural; Text : String) is
+      Curs : Cursor := This.Items.First;
+      Count : Natural := 0;
+      Item : MenuItem;
+   begin
+      while Curs /= No_Element loop
+         if Count = Index then
+            Item := Element(Curs);
+            Item.Text := To_Bounded_String(Text, Drop => Ada.Strings.Right);
+            This.Items.Replace_Element(Curs, Item);
+            exit;
+         end if;
+         Count := Count + 1;
+         Curs := Next(Curs);
+      end loop;
+   end ChangeText;
 
 end Menus;

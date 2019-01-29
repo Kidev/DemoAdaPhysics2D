@@ -1,6 +1,7 @@
 with Worlds; use Worlds;
 with Entities; use Entities;
 with Materials; use Materials;
+with Menus; use Menus;
 
 package DemoLogic is
    
@@ -23,6 +24,14 @@ package DemoLogic is
 
    procedure CreateRectangle(W : in out World; X, Y : Integer; H : Natural);
    
-   procedure ChangeEnvironment(W : in out World);
+   procedure ShowActionMenu;
+   
+   procedure ToggleGravity(This : in out Menu);
+   
+   function GetMatName(This : Material) return String;
+   
+   procedure GotoNextMat(This : in out Menu);
+   
+   function GetGravityStr return String;
 
 end DemoLogic;

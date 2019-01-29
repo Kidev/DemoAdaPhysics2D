@@ -13,7 +13,10 @@ package Menus is
    package BoundedStr is new Ada.Strings.Bounded.Generic_Bounded_Length(MaxStrLen);
    use BoundedStr;
    
-   type MenuAction is access procedure;
+   type Menu;
+   type MenuAction is access procedure(This : in out Menu);
+   
+   type MenuTypes is (Menu_Default, Menu_Static);
    
    -- Holds the position of a menu item
    type MenuItemPos is record
@@ -41,11 +44,12 @@ package Menus is
       BackgroundColor : Bitmap_Color;
       ForegroundColor : Bitmap_Color;
       Font : BMP_Font;
+      MenuType : MenuTypes;
    end record;
    pragma Pack(Menu);
    
    -- Init a menu
-   procedure Init(This : in out Menu; Back, Fore : Bitmap_Color; Font : BMP_Font);
+   procedure Init(This : in out Menu; Back, Fore : Bitmap_Color; Font : BMP_Font; MenuType : MenuTypes := Menu_Default);
 
    -- Add item to menu
    procedure AddItem(This : in out Menu; That : MenuItem);
@@ -61,10 +65,16 @@ package Menus is
    procedure Show(This : in out Menu);
 
    -- Wait for user choice
+   -- Will call the relevant MenuAction with a parameter : This (the menu)
+   -- It MUST be freed manually in case of a Menu_Default
+   -- It is freed automatically for a Menu_Static with Desroy = True
    procedure Listen(This : in out Menu; Destroy : Boolean := True; WaitFor : Natural := WaitTicks);
 
    -- Cleans the menu
    procedure Free(This : in out Menu);
+   
+   -- Update the text of the Index'th menu item (in order at the creation)
+   procedure ChangeText(This : in out Menu; Index : Natural; Text : String);
    
 private
    

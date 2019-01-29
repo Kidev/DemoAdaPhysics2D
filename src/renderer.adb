@@ -11,7 +11,7 @@ package body Renderer is
       RenderList(W.GetEntities);
       RenderCue(Cue);
       
-      Display.Update_Layer(1, Copy_Back => False);
+      Display.Update_Layer(1, Copy_Back => True);
    end Render;
    
    procedure RenderCue(Cue : VisualCue) is

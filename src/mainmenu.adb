@@ -1,9 +1,8 @@
 with HAL.Touch_Panel; use HAL.Touch_Panel;
 with HAL.Bitmap; use HAL.Bitmap;
 with STM32.Board; use STM32.Board;
-with STM32.User_Button; use STM32;
-with Menus; use Menus;
 with AdaPhysics2DDemo;
+with STM32.User_Button; use STM32;
 with BMP_Fonts;
 with LCD_Std_Out;
 with Utils;
@@ -16,7 +15,7 @@ package body MainMenu is
 
       Utils.Clear(False);
 
-      StartMenu.Init(Black, White, BMP_Fonts.Font16x24);
+      StartMenu.Init(Black, White, BMP_Fonts.Font16x24, Menu_Default);
       StartMenu.AddItem(Text => "START",
                         Pos => (20, 220, 20, 120),
                         Action => AdaPhysics2DDemo.Start'Access);
@@ -27,9 +26,11 @@ package body MainMenu is
 
    end ShowMainMenu;
 
-   procedure ShowHelpScreen is
+   procedure ShowHelpScreen(This : in out Menu) is
       Tick : Natural := 0;
    begin
+      This.Free;
+
       Utils.Clear(True);
       Utils.Clear(True);
 
