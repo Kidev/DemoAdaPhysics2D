@@ -1,7 +1,6 @@
 with HAL.Touch_Panel; use HAL.Touch_Panel;
 with HAL.Bitmap; use HAL.Bitmap;
 with STM32.Board; use STM32.Board;
-with Bitmapped_Drawing; use Bitmapped_Drawing;
 with STM32.User_Button; use STM32;
 with Menus; use Menus;
 with AdaPhysics2DDemo;
@@ -11,71 +10,22 @@ with Utils;
 
 package body MainMenu is
 
-   procedure ShowMainMenu
-   is
-      Action : access procedure := null;
-      Tick : Natural := 0;
+   procedure ShowMainMenu is
+      StartMenu : Menu;
    begin
+
       Utils.Clear(False);
 
-      DrawMenu;
+      StartMenu.Init(Black, White, BMP_Fonts.Font16x24);
+      StartMenu.AddItem(Text => "START",
+                        Pos => (20, 220, 20, 120),
+                        Action => AdaPhysics2DDemo.Start'Access);
+      StartMenu.AddItem(Text => "HELP",
+                        Action => ShowHelpScreen'Access);
+      StartMenu.Show;
+      StartMenu.Listen;
 
-      loop
-         declare
-            State : constant TP_State := Touch_Panel.Get_All_Touch_Points;
-            X, Y : Integer := 0;
-         begin
-            if Tick > WaitTicks and State'Length = 1 then
-               X := State(State'First).X;
-               Y := State(State'First).Y;
-
-               if X >= 20 and X <= 220 and Y >= 20 and Y <= 120 then
-                  Action := AdaPhysics2DDemo.Start'Access;
-               elsif X >= 20 and X <= 220 and Y >= 140 and Y <= 240 then
-                  Action := ShowHelpScreen'Access;
-               end if;
-            end if;
-         end;
-         Tick := Tick + 1;
-         exit when Action /= null;
-      end loop;
-
-      Action.all;
    end ShowMainMenu;
-
-   procedure DrawMenu is
-   begin
-
-      Display.Hidden_Buffer(1).Set_Source(White);
-      Display.Hidden_Buffer(1).Draw_Rect(Area => (Position => (20, 20),
-                                                  Height => 100,
-                                                  Width => 200));
-      Display.Hidden_Buffer(1).Draw_Rect(Area => (Position => (20, 140),
-                                                  Height => 100,
-                                                  Width => 200));
-
-      Draw_String(Buffer => Display.Hidden_Buffer(1).all,
-                  Start => (40, 40),
-                  Msg => "START",
-                  Font => BMP_Fonts.Font16x24,
-                  Foreground => White,
-                  Background => Black);
-      Draw_String(Buffer => Display.Hidden_Buffer(1).all,
-                  Start => (40, 160),
-                  Msg => "HELP",
-                  Font => BMP_Fonts.Font16x24,
-                  Foreground => White,
-                  Background => Black);
-      Draw_String(Buffer => Display.Hidden_Buffer(1).all,
-                  Start => (5, 300),
-                  Msg => "Demo of Kidev's AdaPhysics2D",
-                  Font => BMP_Fonts.Font8x8,
-                  Foreground => White,
-                  Background => Black);
-
-      Display.Update_Layer(1, Copy_Back => False);
-
-   end DrawMenu;
 
    procedure ShowHelpScreen is
       Tick : Natural := 0;

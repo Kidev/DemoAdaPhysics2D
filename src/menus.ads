@@ -50,8 +50,11 @@ package Menus is
    -- Add item to menu
    procedure AddItem(This : in out Menu; That : MenuItem);
    
+   -- Same, but more flexible
+   procedure AddItem(This : in out Menu; Text : String; Pos : MenuItemPos; Action : MenuAction);
+   
    -- Add item to menu, copying the first item
-   procedure AddItem(This : in out Menu; Text : Bounded_String; Action : MenuAction)
+   procedure AddItem(This : in out Menu; Text : String; Action : MenuAction)
      with Pre => Integer(This.Items.Length) >= 1;
 
    -- Displays the menu

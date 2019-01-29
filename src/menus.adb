@@ -2,6 +2,7 @@ with HAL.Touch_Panel; use HAL.Touch_Panel;
 with STM32.Board; use STM32.Board;
 with Bitmapped_Drawing; use Bitmapped_Drawing;
 with Ada.Unchecked_Deallocation;
+with Ada.Strings;
 
 package body Menus is
 
@@ -25,11 +26,20 @@ package body Menus is
       This.Background.Y2 := That.Pos.Y2 + BorderSize;
    end AddItem;
    
-   procedure AddItem(This : in out Menu; Text : Bounded_String; Action : MenuAction) is
+   procedure AddItem(This : in out Menu; Text : String; Pos : MenuItemPos; Action : MenuAction) is
+      That : MenuItem;
+   begin
+      That.Text := To_Bounded_String(Text, Drop => Ada.Strings.Right);
+      That.Pos := Pos;
+      That.Action := Action;
+      This.AddItem(That);
+   end AddItem;
+   
+   procedure AddItem(This : in out Menu; Text : String; Action : MenuAction) is
       LastItem : constant MenuItem := This.Items.Last_Element;
       That : MenuItem := LastItem;
    begin
-      That.Text := Text;
+      That.Text := To_Bounded_String(Text, Drop => Ada.Strings.Right);
       That.Action := Action;
       That.Pos := (LastItem.Pos.X1, LastItem.Pos.X2,
                    LastItem.Pos.Y2 + BorderSize,
