@@ -6,7 +6,34 @@ with Ada.Unchecked_Deallocation;
 with Ada.Strings;
 
 package body Menus is
+   
+-- Contracts ghosts
+   function StoreAndReturnLen(Len : Integer) return Integer is
+   begin
+      StoredLen := Len;
+      return Len;
+   end StoreAndReturnLen;
+   
+   function CheckOverflow(Pos : MenuItemPos) return Boolean is
+   begin
+      return Pos.Y2 + BorderSize <= 320 - (Pos.Y2 - Pos.Y1) - BorderSize;
+   end CheckOverflow;
+   
+   function GetItemStr(This : Menu; Index : Natural) return String is
+      Curs : Cursor := This.Items.First;
+      Count : Natural := 0;
+   begin
+      while Curs /= No_Element loop
+         if Count = Index then
+            return To_String(Element(Curs).Text);
+         end if;
+         Count := Count + 1;
+         Curs := Next(Curs);
+      end loop;
+      return "";
+   end GetItemStr;
 
+-- Actual package
    procedure Init(This : in out Menu; Back, Fore : Bitmap_Color; Font : BMP_Font; MenuType : MenuTypes := Menu_Default) is
    begin
       This.Items := new List;
@@ -37,7 +64,8 @@ package body Menus is
       This.AddItem(That);
    end AddItem;
    
-   procedure AddItem(This : in out Menu; Text : String; Action : MenuAction) is
+   procedure AddItem(This : in out Menu; Text : String; Action : MenuAction)
+   is
       LastItem : constant MenuItem := This.Items.Last_Element;
       That : MenuItem := LastItem;
    begin
@@ -76,59 +104,57 @@ package body Menus is
       Action : MenuAction := null;
       Tick : Natural := 0;
    begin
-      
-<<Keep_Listening>>
-      
       loop
-         declare
-            State : constant TP_State := Touch_Panel.Get_All_Touch_Points;
-            X, Y : Integer := 0;
-            Curs : Cursor := This.Items.First;
-            Item : MenuItem;
-         begin
-            if This.MenuType = Menu_Static and then User_Button.Has_Been_Pressed then
-               if Destroy then
-                  This.Free;
-               end if;
-               return;
-            end if;
-            if Tick > WaitFor and State'Length = 1 then
-               X := State(State'First).X;
-               Y := State(State'First).Y;
-
-               while Curs /= No_Element loop
-                  
-                  Item := Element(Curs);
-                  if X >= Item.Pos.X1 and then X <= Item.Pos.X2
-                    and then Y >= Item.Pos.Y1 and then Y <= Item.Pos.Y2 then
-                     
-                     Action := Item.Action;
-                     exit;
-                     
-                  end if;
-                  Curs := Next(Curs);
-                  
-               end loop;
-               
-            end if;
-         end;
-         Tick := Tick + 1;
-         exit when Action /= null;
-      end loop;
-
-      if Action /= null then
-         Action.all(This);
-         
-         if This.MenuType = Menu_Static then
-            This.Show;
-         end if;
-      end if;
-      
-      if This.MenuType = Menu_Static then
          Action := null;
          Tick := 0;
-         goto Keep_Listening; -- prevents recursion, if I This.Listen the stack grows too much
-      end if;
+         loop
+            declare
+               State : constant TP_State := Touch_Panel.Get_All_Touch_Points;
+               X, Y : Integer := 0;
+               Curs : Cursor := This.Items.First;
+               Item : MenuItem;
+            begin
+               if This.MenuType = Menu_Static and then User_Button.Has_Been_Pressed then
+                  if Destroy then
+                     This.Free;
+                  end if;
+                  return;
+               end if;
+               if Tick > WaitFor and State'Length = 1 then
+                  X := State(State'First).X;
+                  Y := State(State'First).Y;
+
+                  while Curs /= No_Element loop
+                  
+                     Item := Element(Curs);
+                     if X >= Item.Pos.X1 and then X <= Item.Pos.X2
+                       and then Y >= Item.Pos.Y1 and then Y <= Item.Pos.Y2 then
+                     
+                        Action := Item.Action;
+                        exit;
+                     
+                     end if;
+                     Curs := Next(Curs);
+                  
+                  end loop;
+               
+               end if;
+            end;
+            Tick := Tick + 1;
+            exit when Action /= null;
+         end loop;
+
+         if Action /= null then
+            Action.all(This);
+         
+            if This.MenuType = Menu_Static then
+               This.Show;
+            end if;
+         end if;
+         
+         exit when This.MenuType /= Menu_Static;
+
+      end loop;
       
    end Listen;
 
@@ -137,6 +163,7 @@ package body Menus is
    begin
       This.Items.Clear;
       FreeList(This.Items);
+      This.Items := null;
    end Free;
                                          
    procedure DrawRect(Item : MenuItemPos; Fill : Boolean; Color : Bitmap_Color) is

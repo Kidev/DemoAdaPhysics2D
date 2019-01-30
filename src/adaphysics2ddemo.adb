@@ -28,6 +28,7 @@ package body AdaPhysics2DDemo is
       Cooldown : Integer := 0;
       Tick : Integer := 0;
    begin
+      -- Clears the calling menu
       This.Free;
       
       -- Ceiling
@@ -62,7 +63,7 @@ package body AdaPhysics2DDemo is
 
       W1.Init(dt, MaxEnt);
       W1.SetInvalidChecker(InvalidEnt'Access);
-      W1.SetMaxSpeed((100.0, 100.0));
+      W1.SetMaxSpeed((500.0, 500.0));
 
       W1.AddEnvironment(EAir);
       W1.AddEnvironment(EWater);
@@ -83,8 +84,6 @@ package body AdaPhysics2DDemo is
          if not Frozen then
             Tick := Tick + 1;
             -- update the world for one tick (dt) with low sram usage
-            -- InvalidEnt'Access is an access to a function that tells
-            -- is an ent is valid or not (outside of the screen -> delete)
             W1.StepLowRAM;
          end if;
 

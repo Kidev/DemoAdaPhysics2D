@@ -5,6 +5,8 @@ with Ada.Strings.Bounded;
 
 package Menus is
 
+-- Actual package
+
    -- Tick freeze when menu is displayed, to prevent mistouches
    WaitTicks : constant Natural := 100;
    BorderSize : constant Natural := 10;
@@ -17,7 +19,7 @@ package Menus is
    type MenuAction is access procedure(This : in out Menu);
    
    type MenuTypes is (Menu_Default, Menu_Static);
-   
+
    -- Holds the position of a menu item
    type MenuItemPos is record
       X1, X2, Y1, Y2 : Natural;
@@ -39,7 +41,7 @@ package Menus is
 
    -- Hold all the menu data required, tagged for the lovely dot notation
    type Menu is tagged record
-      Items : MenuListAcc;
+      Items : MenuListAcc := null;
       Background : MenuItemPos;
       BackgroundColor : Bitmap_Color;
       ForegroundColor : Bitmap_Color;
@@ -47,7 +49,17 @@ package Menus is
       MenuType : MenuTypes;
    end record;
    pragma Pack(Menu);
+
+-- Contracts ghosts
+   StoredLen : Integer := 0 with Ghost;
+   StoredLastPos : MenuItemPos with Ghost;
    
+   function StoreAndReturnLen(Len : Integer) return Integer with Ghost;
+   function CheckOverflow(Pos : MenuItemPos) return Boolean with Ghost;
+   function GetItemStr(This : Menu; Index : Natural) return String with Ghost;
+   
+-- Menu Primitives
+
    -- Init a menu
    procedure Init(This : in out Menu; Back, Fore : Bitmap_Color; Font : BMP_Font; MenuType : MenuTypes := Menu_Default);
 
@@ -56,13 +68,23 @@ package Menus is
    
    -- Same, but more flexible
    procedure AddItem(This : in out Menu; Text : String; Pos : MenuItemPos; Action : MenuAction);
-   
+
    -- Add item to menu, copying the first item
    procedure AddItem(This : in out Menu; Text : String; Action : MenuAction)
-     with Pre => Integer(This.Items.Length) >= 1;
+     with
+       Global => (Proof_In => (StoredLen),
+                  Input => (BorderSize, MaxStrLen)),
+       Pre => This.Items /= null
+          and StoreAndReturnLen(Integer(This.Items.Length)) >= 1
+          and CheckOverflow(This.Items.Last_Element.Pos)
+          and Action /= null,
+       Post => StoredLen + 1 = Integer(This.Items.Length),
+       Depends => (This => +(Text, Action, BorderSize, MaxStrLen));
 
    -- Displays the menu
-   procedure Show(This : in out Menu);
+   procedure Show(This : in out Menu)
+     with
+       Pre => This.Items /= null;
 
    -- Wait for user choice
    -- Will call the relevant MenuAction with a parameter : This (the menu)
@@ -71,11 +93,19 @@ package Menus is
    procedure Listen(This : in out Menu; Destroy : Boolean := True; WaitFor : Natural := WaitTicks);
 
    -- Cleans the menu
-   procedure Free(This : in out Menu);
+   procedure Free(This : in out Menu)
+     with
+       Pre => This.Items /= null,
+       Post => This.Items = null;
    
    -- Update the text of the Index'th menu item (in order at the creation)
-   procedure ChangeText(This : in out Menu; Index : Natural; Text : String);
-   
+   procedure ChangeText(This : in out Menu; Index : Natural; Text : String)
+     with
+       Pre => This.Items /= null
+          and Index < Integer(This.Items.Length),
+       Post => GetItemStr(This, Index) = Text,
+       Depends => (This => +(Index, Text));
+
 private
    
    procedure DrawRect(Item : MenuItemPos; Fill : Boolean; Color : Bitmap_Color); 
