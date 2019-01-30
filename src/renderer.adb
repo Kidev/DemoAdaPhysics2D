@@ -114,7 +114,7 @@ package body Renderer is
       if E.Coords.y < 0.0 or E.Coords.y > 320.0 then return True; end if;
       return False;
    end InvalidEnt;
-   
+
    function GetIntCoords(flCoords : Vec2D) return Point
    is
       retCoords : Vec2D;

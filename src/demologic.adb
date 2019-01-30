@@ -5,21 +5,11 @@ with STM32.User_Button; use STM32;
 with L3GD20; use L3GD20;
 with Circles;
 with Rectangles;
-with Vectors2D; use Vectors2D;
 with HAL.Bitmap; use HAL.Bitmap;
 with BMP_Fonts;
 
 package body DemoLogic is
      
-   Hold : Natural := 0;
-   LastX, LastY : Integer := 0;
-   GlobalGravity : Vec2D := (0.0, 9.81);
-   MaxHold : constant Natural := 40;
-   EntCreatorMat : Materials.Material := Materials.BALLOON;
-   type Modes is (M_Frozen, M_Disabled, M_Circle, M_Rectangle);
-   Mode : Modes := M_Disabled;
-   CurWorld : World;
-
    function Inputs(W : in out World; Frozen : in out Boolean;
                    Cooldown : Integer; Cue : in out VisualCue) return Boolean
    is

@@ -15,7 +15,8 @@ package Renderer is
    procedure RenderCue(Cue : VisualCue);
 
    -- Failsafe translation to int Coords
-   function GetIntCoords(flCoords : Vec2D) return Point;
+   function GetIntCoords(flCoords : Vec2D) return Point
+     with Post => GetIntCoords'Result.X <= 240 and GetIntCoords'Result.Y <= 320;
 
    -- Gets the color appropriate for the material
    function GetColor(Mat : in Material) return Bitmap_Color;
