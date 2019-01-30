@@ -9,10 +9,39 @@ package body Renderer is
    begin
       RenderList(W.GetEnvironments);
       RenderList(W.GetEntities);
+      RenderLinksList(W.GetLinks);
       RenderCue(Cue);
       
       Display.Update_Layer(1, Copy_Back => True);
    end Render;
+   
+   procedure RenderLinksList(L : LinksListAcc)
+   is
+      use LinksList;
+      Curs : LinksList.Cursor := L.First;
+      CurLink : LinkAcc;
+   begin
+      while Curs /= LinksList.No_Element loop
+         CurLink := LinksList.Element(Curs);
+         Display.Hidden_Buffer(1).Set_Source(GetLinkColor(CurLink));
+         Display.Hidden_Buffer(1).Draw_Line(GetCenteredPos(CurLink.A), GetCenteredPos(CurLink.B), 1);
+         Curs := LinksList.Next(Curs);
+      end loop;
+   end RenderLinksList;
+   
+   function GetCenteredPos(E : access Entity'Class) return Point
+   is
+   begin
+      case E.EntityType is
+         when EntRectangle =>
+            declare
+               Rect : constant Rectangles.RectangleAcc := Rectangles.RectangleAcc(E);
+            begin
+               return GetIntCoords(Rect.GetCenter);
+            end;
+         when EntCircle => return GetIntCoords(E.Coords);
+      end case;
+   end GetCenteredPos;
    
    procedure RenderCue(Cue : VisualCue) is
    begin
@@ -105,6 +134,17 @@ package body Renderer is
          when ETWater => return Aqua;
       end case;
    end GetColor;
+   
+   function GetLinkColor(L : LinkAcc) return Bitmap_Color
+   is
+   begin
+      if L.Factor = LinkTypesFactors(LTRope) then
+         return Red;
+      elsif L.Factor = LinkTypesFactors(LTSpring) then
+         return Orange;
+      end if;
+      return White;
+   end GetLinkColor;
    
    function InvalidEnt(E : access Entity'Class) return Boolean
    is

@@ -3,6 +3,7 @@ with Entities; use Entities;
 with Materials; use Materials;
 with Menus; use Menus;
 with Vectors2D; use Vectors2D;
+with Links; use Links;
 
 package DemoLogic is
    
@@ -12,6 +13,8 @@ package DemoLogic is
    MaxHold : constant Natural := 40;
    EntCreatorMat : Materials.Material := Materials.BALLOON;
    EntEditorMat : Materials.Material := Materials.VACUUM;
+   EntLinkerType : LinkTypes := LTRope;
+   EntLinkerSelected : EntityClassAcc := null;
    type Modes is (M_Frozen, M_Disabled, M_Circle, M_Rectangle, M_Edit, M_Link);
    Mode : Modes := M_Disabled;
    CurWorld : World;
@@ -45,10 +48,14 @@ package DemoLogic is
    
    function GetMatName(This : Material) return String;
    
+   function GetLinkTypeName(This : LinkTypes) return String;
+   
    procedure GotoNextSolidMat(This : in out Menu)
      with Post => IsSolidMaterial(EntCreatorMat);
    
    procedure GotoNextMat(This : in out Menu);
+   
+   procedure GotoNextLinkType(This : in out Menu);
    
    function GetGravityStr return String;
 
@@ -57,5 +64,7 @@ private
    procedure SetLEDs(R, G : Boolean);
    
    procedure TryToEditAt(W : in out World; X, Y : Integer);
+   
+   procedure TryToLinkAt(W : in out World; X, Y : Integer);
 
 end DemoLogic;

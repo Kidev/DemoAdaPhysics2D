@@ -93,6 +93,7 @@ package body DemoLogic is
    procedure ModeActions(Frozen : in out Boolean)
    is
    begin
+      EntLinkerSelected := null;
       if Mode = M_Frozen then
          Frozen := True;
       else
@@ -120,6 +121,7 @@ package body DemoLogic is
       ActionMenu.AddItem(GetGravityStr, (40, 200, 40, 80), ToggleGravity'Access);
       ActionMenu.AddItem("C:" & GetMatName(EntCreatorMat), GotoNextSolidMat'Access);
       ActionMenu.AddItem("E:" & GetMatName(EntEditorMat), GotoNextMat'Access);
+      ActionMenu.AddItem("L:" & GetLinkTypeName(EntLinkerType), GotoNextLinkType'Access);
       ActionMenu.Show;
       ActionMenu.Listen;
    end ShowActionMenu;
@@ -147,10 +149,25 @@ package body DemoLogic is
          when M_Rectangle => CreateRectangle(W, X, Y, H);
          when M_Disabled => null;
          when M_Frozen => null;
-         when M_Link => null;
+         when M_Link => TryToLinkAt(W, X, Y);
          when M_Edit => TryToEditAt(W, X, Y);
       end case;  
    end CreateEntity;
+   
+   procedure TryToLinkAt(W : in out World; X, Y : Integer)
+   is
+      Pos : constant Vec2D := (Float(X), Float(Y));
+      Ent : constant EntityClassAcc := W.GetClosest(Pos, SM_Entity);
+   begin
+      if Ent = null then
+         EntLinkerSelected := null;
+      elsif EntLinkerSelected = null then
+         EntLinkerSelected := Ent;
+      else
+         W.LinkEntities(EntLinkerSelected, Ent, EntLinkerType);
+         EntLinkerSelected := null;
+      end if;
+   end TryToLinkAt;
    
    procedure TryToEditAt(W : in out World; X, Y : Integer)
    is
@@ -211,6 +228,13 @@ package body DemoLogic is
       return StrMat(StrMat'First + 2 .. StrMat'Last);
    end GetMatName;
    
+   function GetLinkTypeName(This : LinkTypes) return String
+   is
+      StrType : constant String := LinkTypes'Image(This);
+   begin
+      return StrType(StrType'First + 2 .. StrType'Last);
+   end GetLinkTypeName;
+
    function GetGravityStr return String
    is
    begin
@@ -251,6 +275,12 @@ package body DemoLogic is
       end case;
       This.ChangeText(2, "E:" & GetMatName(EntEditorMat));
    end GotoNextMat;
+
+   procedure GotoNextLinkType(This : in out Menu) is
+   begin
+      EntLinkerType := LinkTypes'Val((LinkTypes'Pos(EntLinkerType) + 1) mod (LinkTypes'Pos(LinkTypes'Last) + 1));
+      This.ChangeText(3, "L:" & GetLinkTypeName(EntLinkerType));
+   end GotoNextLinkType;
 
 end DemoLogic;
 
