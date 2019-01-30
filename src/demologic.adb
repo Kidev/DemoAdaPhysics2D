@@ -95,25 +95,31 @@ package body DemoLogic is
    begin
       if Mode = M_Frozen then
          Frozen := True;
-         Turn_On(Red_LED);
-         Turn_Off(Green_LED);
       else
          Frozen := False;
-         Turn_Off(Red_LED);
       end if;
-      if Mode = M_Disabled then
-         Turn_Off(Green_LED);
-      elsif Mode /= M_Frozen then
-         Turn_On(Green_LED);
-      end if;
+      case Mode is
+         when M_Disabled => SetLEDs(False, False);
+         when M_Rectangle | M_Circle => SetLEDs(False, True);
+         when M_Frozen => SetLEDs(False, False);
+         when M_Link => SetLEDs(True, True);
+         when M_Edit => SetLEDs(True, False);
+      end case;
    end ModeActions;
+   
+   procedure SetLEDs(R, G : Boolean) is
+   begin
+      if R then Turn_On(Red_LED); else Turn_Off(Red_LED); end if;
+      if G then Turn_On(Green_LED); else Turn_Off(Green_LED); end if;
+   end SetLEDs;
    
    procedure ShowActionMenu is
       ActionMenu : Menu;
    begin
       ActionMenu.Init(Black, White, BMP_Fonts.Font12x12, Menu_Static);
       ActionMenu.AddItem(GetGravityStr, (40, 200, 40, 80), ToggleGravity'Access);
-      ActionMenu.AddItem(GetMatName(EntCreatorMat), GotoNextMat'Access);
+      ActionMenu.AddItem("C:" & GetMatName(EntCreatorMat), GotoNextSolidMat'Access);
+      ActionMenu.AddItem("E:" & GetMatName(EntEditorMat), GotoNextMat'Access);
       ActionMenu.Show;
       ActionMenu.Listen;
    end ShowActionMenu;
@@ -141,8 +147,32 @@ package body DemoLogic is
          when M_Rectangle => CreateRectangle(W, X, Y, H);
          when M_Disabled => null;
          when M_Frozen => null;
+         when M_Link => null;
+         when M_Edit => TryToEditAt(W, X, Y);
       end case;  
    end CreateEntity;
+   
+   procedure TryToEditAt(W : in out World; X, Y : Integer)
+   is
+      Pos : constant Vec2D := (Float(X), Float(Y));
+      Ent : EntityClassAcc := null;
+   begin
+      if EntEditorMat = VACUUM then
+         Ent := W.GetClosest(Pos, SM_All);
+      elsif IsSolidMaterial(EntEditorMat) then
+         Ent := W.GetClosest(Pos, SM_Entity);
+      else
+         Ent := W.GetClosest(Pos, SM_Environment);
+      end if;
+      
+      if Ent /= null then
+         if IsSolidMaterial(Ent.Mat) and EntEditorMat = VACUUM then
+            W.RemoveEntity(Ent, True);
+         else
+            Ent.ChangeMaterial(EntEditorMat);
+         end if;
+      end if;
+   end TryToEditAt;
    
    procedure DisplayEntity(X, Y : Integer; H : Natural; Cue : in out VisualCue)
    is
@@ -150,7 +180,7 @@ package body DemoLogic is
       case Mode is
          when M_Circle => Cue := VisualCue'(X, Y, H, EntCircle, EntCreatorMat);
          when M_Rectangle => Cue := VisualCue'(X, Y, H, EntRectangle, EntCreatorMat);
-         when M_Disabled | M_Frozen => null;
+         when M_Disabled | M_Frozen | M_Link | M_Edit => null;
       end case;
    end DisplayEntity;
 
@@ -190,7 +220,7 @@ package body DemoLogic is
       return "GRAVITY ON";
    end GetGravityStr;
    
-   procedure GotoNextMat(This : in out Menu) is
+   procedure GotoNextSolidMat(This : in out Menu) is
    begin
       case EntCreatorMat.MType is
          when MTConcrete => EntCreatorMat := WOOD;
@@ -202,7 +232,24 @@ package body DemoLogic is
          when MTStatic => EntCreatorMat := CONCRETE;
          when others => EntCreatorMat := RUBBER;
       end case;
-      This.ChangeText(1, GetMatName(EntCreatorMat));
+      This.ChangeText(1, "C:" & GetMatName(EntCreatorMat));
+   end GotoNextSolidMat;
+   
+   procedure GotoNextMat(This : in out Menu) is
+   begin
+      case EntEditorMat.MType is
+         when ETVacuum => EntEditorMat := AIR;
+         when ETAir => EntEditorMat := WATER;
+         when ETWater => EntEditorMat := CONCRETE;
+         when MTConcrete => EntEditorMat := WOOD;
+         when MTWood => EntEditorMat := STEEL;
+         when MTSteel => EntEditorMat := RUBBER;
+         when MTRubber => EntEditorMat := ICE;
+         when MTIce => EntEditorMat := BALLOON;
+         when MTBalloon => EntEditorMat := STATIC;
+         when MTStatic => EntEditorMat := VACUUM;
+      end case;
+      This.ChangeText(2, "E:" & GetMatName(EntEditorMat));
    end GotoNextMat;
 
 end DemoLogic;

@@ -11,7 +11,8 @@ package DemoLogic is
    GlobalGravity : Vec2D := (0.0, 9.81);
    MaxHold : constant Natural := 40;
    EntCreatorMat : Materials.Material := Materials.BALLOON;
-   type Modes is (M_Frozen, M_Disabled, M_Circle, M_Rectangle);
+   EntEditorMat : Materials.Material := Materials.VACUUM;
+   type Modes is (M_Frozen, M_Disabled, M_Circle, M_Rectangle, M_Edit, M_Link);
    Mode : Modes := M_Disabled;
    CurWorld : World;
    
@@ -44,9 +45,17 @@ package DemoLogic is
    
    function GetMatName(This : Material) return String;
    
-   procedure GotoNextMat(This : in out Menu)
+   procedure GotoNextSolidMat(This : in out Menu)
      with Post => IsSolidMaterial(EntCreatorMat);
    
+   procedure GotoNextMat(This : in out Menu);
+   
    function GetGravityStr return String;
+
+private
+   
+   procedure SetLEDs(R, G : Boolean);
+   
+   procedure TryToEditAt(W : in out World; X, Y : Integer);
 
 end DemoLogic;
