@@ -22,8 +22,11 @@ package Menus is
 
    -- Holds the position of a menu item
    type MenuItemPos is record
-      X1, X2, Y1, Y2 : Natural;
-   end record;
+      X1, X2, Y1, Y2 : Natural := 0;
+   end record
+     with 
+       Dynamic_Predicate => MenuItemPos.X2 <= 240
+                        and MenuItemPos.Y2 <= 320;
    pragma Pack(MenuItemPos);
 
    -- Holds data about a menu item
@@ -51,6 +54,7 @@ package Menus is
    pragma Pack(Menu);
 
 -- Contracts ghosts
+
    StoredLen : Integer := 0 with Ghost;
    StoredLastPos : MenuItemPos with Ghost;
    
@@ -61,13 +65,33 @@ package Menus is
 -- Menu Primitives
 
    -- Init a menu
-   procedure Init(This : in out Menu; Back, Fore : Bitmap_Color; Font : BMP_Font; MenuType : MenuTypes := Menu_Default);
+   procedure Init(This : in out Menu; Back, Fore : Bitmap_Color; Font : BMP_Font; MenuType : MenuTypes := Menu_Default)
+     with
+       Post => This.Items /= null;
 
    -- Add item to menu
-   procedure AddItem(This : in out Menu; That : MenuItem);
+   procedure AddItem(This : in out Menu; That : MenuItem)
+     with
+       Pre => This.Items /= null
+          and StoreAndReturnLen(Integer(This.Items.Length)) >= 0
+          and That.Action /= null,
+       Post => This.Items /= null
+           and StoredLen + 1 = Integer(This.Items.Length)
+           and This.Items.Last_Element.Pos = That.Pos
+           and This.Items.Last_Element.Action = That.Action
+           and This.Items.Last_Element.Text = That.Text;
    
    -- Same, but more flexible
-   procedure AddItem(This : in out Menu; Text : String; Pos : MenuItemPos; Action : MenuAction);
+   procedure AddItem(This : in out Menu; Text : String; Pos : MenuItemPos; Action : MenuAction)
+     with
+       Pre => This.Items /= null
+          and StoreAndReturnLen(Integer(This.Items.Length)) >= 0
+          and Action /= null,
+       Post => This.Items /= null
+           and StoredLen + 1 = Integer(This.Items.Length)
+           and This.Items.Last_Element.Pos = Pos
+           and This.Items.Last_Element.Action = Action
+           and This.Items.Last_Element.Text = Text;
 
    -- Add item to menu, copying the first item
    procedure AddItem(This : in out Menu; Text : String; Action : MenuAction)
@@ -78,7 +102,10 @@ package Menus is
           and StoreAndReturnLen(Integer(This.Items.Length)) >= 1
           and CheckOverflow(This.Items.Last_Element.Pos)
           and Action /= null,
-       Post => StoredLen + 1 = Integer(This.Items.Length),
+       Post => This.Items /= null
+           and StoredLen + 1 = Integer(This.Items.Length)
+           and This.Items.Last_Element.Action = Action
+           and This.Items.Last_Element.Text = Text,
        Depends => (This => +(Text, Action, BorderSize, MaxStrLen));
 
    -- Displays the menu
