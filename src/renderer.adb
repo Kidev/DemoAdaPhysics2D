@@ -27,16 +27,16 @@ package body Renderer is
       end if;
    end RenderCue;
 
-   procedure RenderList(L : ListAcc)
+   procedure RenderList(L : EntsListAcc)
    is
-      use DoublyLinkedListEnts;
-      Curs : Cursor := L.First;
+      use EntsList;
+      Curs : EntsList.Cursor := L.First;
       E : access Entity'Class;
    begin
       
-      while Curs /= No_Element loop
+      while Curs /= EntsList.No_Element loop
          
-         E := Element(Curs);
+         E := EntsList.Element(Curs);
          
          Display.Hidden_Buffer(1).Set_Source(GetColor(E.Mat));
          
@@ -83,7 +83,7 @@ package body Renderer is
                end;
          end case;
          
-         Curs := Next(Curs);
+         Curs := EntsList.Next(Curs);
 
       end loop;
       

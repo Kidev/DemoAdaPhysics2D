@@ -10,7 +10,7 @@ package Renderer is
    -- Displays the entities passed
    procedure Render(W : in out World; Cue : VisualCue);
 
-   procedure RenderList(L : ListAcc);
+   procedure RenderList(L : EntsListAcc);
 
    procedure RenderCue(Cue : VisualCue);
 

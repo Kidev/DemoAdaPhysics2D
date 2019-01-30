@@ -20,15 +20,16 @@ package body Menus is
    end CheckOverflow;
    
    function GetItemStr(This : Menu; Index : Natural) return String is
-      Curs : Cursor := This.Items.First;
+      use MenuItemsList;
+      Curs : MenuItemsList.Cursor := This.Items.First;
       Count : Natural := 0;
    begin
-      while Curs /= No_Element loop
+      while Curs /= MenuItemsList.No_Element loop
          if Count = Index then
-            return To_String(Element(Curs).Text);
+            return To_String(MenuItemsList.Element(Curs).Text);
          end if;
          Count := Count + 1;
-         Curs := Next(Curs);
+         Curs := MenuItemsList.Next(Curs);
       end loop;
       return "";
    end GetItemStr;
@@ -36,7 +37,7 @@ package body Menus is
 -- Actual package
    procedure Init(This : in out Menu; Back, Fore : Bitmap_Color; Font : BMP_Font; MenuType : MenuTypes := Menu_Default) is
    begin
-      This.Items := new List;
+      This.Items := new MenuItemsList.List;
       This.Background := (0, 0, 0, 0);
       This.BackgroundColor := Back;
       This.ForegroundColor := Fore;
@@ -78,19 +79,20 @@ package body Menus is
    end AddItem;
 
    procedure Show(This : in out Menu) is
-      Curs : Cursor := This.Items.First;
+      use MenuItemsList;
+      Curs : MenuItemsList.Cursor := This.Items.First;
       Item : MenuItem;
    begin
       
       DrawRect(This.Background, True, This.BackgroundColor);
       
-      while Curs /= No_Element loop
+      while Curs /= MenuItemsList.No_Element loop
 
-         Item := Element(Curs);
+         Item := MenuItemsList.Element(Curs);
          DrawRect(Item.Pos, False, This.ForegroundColor);
          DrawText(Item.Pos, Item.Text, This.Font, This.BackgroundColor, This.ForegroundColor);
          
-         Curs := Next(Curs);
+         Curs := MenuItemsList.Next(Curs);
 
       end loop;
       
@@ -109,9 +111,10 @@ package body Menus is
          Tick := 0;
          loop
             declare
+               use MenuItemsList;
                State : constant TP_State := Touch_Panel.Get_All_Touch_Points;
                X, Y : Integer := 0;
-               Curs : Cursor := This.Items.First;
+               Curs : MenuItemsList.Cursor := This.Items.First;
                Item : MenuItem;
             begin
                if This.MenuType = Menu_Static and then User_Button.Has_Been_Pressed then
@@ -124,9 +127,9 @@ package body Menus is
                   X := State(State'First).X;
                   Y := State(State'First).Y;
 
-                  while Curs /= No_Element loop
+                  while Curs /= MenuItemsList.No_Element loop
                   
-                     Item := Element(Curs);
+                     Item := MenuItemsList.Element(Curs);
                      if X >= Item.Pos.X1 and then X <= Item.Pos.X2
                        and then Y >= Item.Pos.Y1 and then Y <= Item.Pos.Y2 then
                      
@@ -134,7 +137,7 @@ package body Menus is
                         exit;
                      
                      end if;
-                     Curs := Next(Curs);
+                     Curs := MenuItemsList.Next(Curs);
                   
                   end loop;
                
@@ -159,7 +162,7 @@ package body Menus is
    end Listen;
 
    procedure Free(This : in out Menu) is
-      procedure FreeList is new Ada.Unchecked_Deallocation(List, MenuListAcc);
+      procedure FreeList is new Ada.Unchecked_Deallocation(MenuItemsList.List, MenuListAcc);
    begin
       This.Items.Clear;
       FreeList(This.Items);
@@ -191,19 +194,20 @@ package body Menus is
    end DrawText;
    
    procedure ChangeText(This : in out Menu; Index : Natural; Text : String) is
-      Curs : Cursor := This.Items.First;
+      use MenuItemsList;
+      Curs : MenuItemsList.Cursor := This.Items.First;
       Count : Natural := 0;
       Item : MenuItem;
    begin
-      while Curs /= No_Element loop
+      while Curs /= MenuItemsList.No_Element loop
          if Count = Index then
-            Item := Element(Curs);
+            Item := MenuItemsList.Element(Curs);
             Item.Text := To_Bounded_String(Text, Drop => Ada.Strings.Right);
             This.Items.Replace_Element(Curs, Item);
             exit;
          end if;
          Count := Count + 1;
-         Curs := Next(Curs);
+         Curs := MenuItemsList.Next(Curs);
       end loop;
    end ChangeText;
 

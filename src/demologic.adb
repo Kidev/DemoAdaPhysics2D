@@ -73,14 +73,14 @@ package body DemoLogic is
          end if;
          if Shaked then
             declare
-               use DoublyLinkedListEnts;
-               Curs : Cursor := W.GetEntities.First;
+               use EntsList;
+               Curs : EntsList.Cursor := W.GetEntities.First;
                E : access Entity'Class;
             begin
-               while Curs /= No_Element loop
-                  E := Element(Curs);
+               while Curs /= EntsList.No_Element loop
+                  E := EntsList.Element(Curs);
                   E.all.ApplyForce(PushVec * E.Mass * Multiplier);
-                  Curs := Next(Curs);
+                  Curs := EntsList.Next(Curs);
                end loop;
             end;
             return True;
@@ -125,17 +125,17 @@ package body DemoLogic is
    end ShowActionMenu;
                          
    procedure ToggleGravity(This : in out Menu) is
-      use DoublyLinkedListEnts;
+      use EntsList;
       E : access Entity'Class;
-      Curs : Cursor := CurWorld.Entities.First;
+      Curs : EntsList.Cursor := CurWorld.Entities.First;
       Grav : constant Vec2D := (0.0, (if GlobalGravity.y = 0.0 then 9.81 else 0.0));
    begin
       GlobalGravity := Grav;
       This.ChangeText(0, GetGravityStr);
-      while Curs /= No_Element loop
-         E := Element(Curs);
+      while Curs /= EntsList.No_Element loop
+         E := EntsList.Element(Curs);
          E.all.SetGravity(Grav);
-         Curs := Next(Curs);
+         Curs := EntsList.Next(Curs);
       end loop;
    end ToggleGravity;
    

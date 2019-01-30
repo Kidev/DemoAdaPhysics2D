@@ -38,9 +38,8 @@ package Menus is
    pragma Pack(MenuItem);
 
    -- Holds the menu items
-   package DoublyLinkedListMenuItems is new Ada.Containers.Doubly_Linked_Lists(MenuItem);
-   use DoublyLinkedListMenuItems;
-   type MenuListAcc is access List;
+   package MenuItemsList is new Ada.Containers.Doubly_Linked_Lists(MenuItem);
+   type MenuListAcc is access MenuItemsList.List;
 
    -- Hold all the menu data required, tagged for the lovely dot notation
    type Menu is tagged record
