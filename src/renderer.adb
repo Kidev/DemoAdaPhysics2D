@@ -32,15 +32,7 @@ package body Renderer is
    function GetCenteredPos(E : access Entity'Class) return Point
    is
    begin
-      case E.EntityType is
-         when EntRectangle =>
-            declare
-               Rect : constant Rectangles.RectangleAcc := Rectangles.RectangleAcc(E);
-            begin
-               return GetIntCoords(Rect.GetCenter);
-            end;
-         when EntCircle => return GetIntCoords(E.Coords);
-      end case;
+      return GetIntCoords(E.GetPosition);
    end GetCenteredPos;
    
    procedure RenderCue(Cue : VisualCue) is
