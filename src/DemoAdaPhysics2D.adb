@@ -50,7 +50,7 @@ with LCD_Std_Out;
 with BMP_Fonts;
 with Utils;
 
-procedure AdaProject is
+procedure DemoAdaPhysics2D is
    pragma Assertion_Policy (Check);
 begin
 
@@ -94,4 +94,4 @@ begin
          loop null; end loop;
    end;
 
-end AdaProject;
+end DemoAdaPhysics2D;
