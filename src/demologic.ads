@@ -11,7 +11,7 @@ package DemoLogic is
    LastX, LastY : Integer := 0;
    GlobalGravity : Vec2D := (0.0, 9.81);
    MaxHold : constant Natural := 40;
-   EntCreatorMat : Materials.Material := Materials.BALLOON;
+   EntCreatorMat : Materials.Material := Materials.RUBBER;
    EntEditorMat : Materials.Material := Materials.VACUUM;
    EntLinkerType : LinkTypes := LTRope;
    EntLinkerSelected : EntityClassAcc := null;
