@@ -18,6 +18,7 @@ package DemoLogic is
    type Modes is (M_Frozen, M_Disabled, M_Circle, M_Rectangle, M_Edit, M_Link);
    Mode : Modes := M_Disabled;
    CurWorld : World;
+   Quit : Boolean := False;
    
    type VisualCue is record
       X, Y, R : Integer;
@@ -58,6 +59,8 @@ package DemoLogic is
    procedure GotoNextLinkType(This : in out Menu);
    
    function GetGravityStr return String;
+   
+   procedure QuitDemo(This : in out Menu);
 
 private
    

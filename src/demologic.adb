@@ -30,6 +30,10 @@ package body DemoLogic is
          ModeActions(Frozen);
          if Mode = M_Frozen then
             ShowActionMenu;
+            if Quit then
+               Cue := VisualCue'(-1, -1, -1, EntCircle, EntCreatorMat);
+               return False;
+            end if;
             Mode := Modes'Val((Modes'Pos(Mode) + 1) mod (Modes'Pos(Modes'Last) + 1));
             ModeActions(Frozen);
          end if;
@@ -122,9 +126,16 @@ package body DemoLogic is
       ActionMenu.AddItem("C:" & GetMatName(EntCreatorMat), GotoNextSolidMat'Access);
       ActionMenu.AddItem("E:" & GetMatName(EntEditorMat), GotoNextMat'Access);
       ActionMenu.AddItem("L:" & GetLinkTypeName(EntLinkerType), GotoNextLinkType'Access);
+      ActionMenu.AddItem("QUIT", QuitDemo'Access);
       ActionMenu.Show;
       ActionMenu.Listen;
    end ShowActionMenu;
+   
+   procedure QuitDemo(This : in out Menu) is
+   begin
+      This.MenuType := Menu_Default;
+      Quit := True;
+   end QuitDemo;
                          
    procedure ToggleGravity(This : in out Menu) is
       use EntsList;

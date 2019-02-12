@@ -83,8 +83,8 @@ package body AdaPhysics2DDemo is
 
          if not Frozen then
             Tick := Tick + 1;
-            -- update the world for one tick (dt) with low sram usage
-            W1.StepLowRAM;
+            -- update the world for one tick (dt)
+            W1.Step;
          end if;
 
          -- clear buffer for next render
@@ -95,12 +95,15 @@ package body AdaPhysics2DDemo is
             Cooldown := cd; -- reset cooldown
          end if;
          
+         -- Exit when the menu quit was selected
+         exit when Cue.X < 0;
+         
          -- renders
          Render(W1, Cue);
 
       end loop;
       
-      --W1.Free;
+      W1.Free;
       
    end Start;
 
