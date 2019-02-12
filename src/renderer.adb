@@ -29,7 +29,7 @@ package body Renderer is
       end loop;
    end RenderLinksList;
    
-   function GetCenteredPos(E : access Entity'Class) return Point
+   function GetCenteredPos(E : EntityClassAcc) return Point
    is
    begin
       return GetIntCoords(E.GetPosition);
@@ -52,7 +52,7 @@ package body Renderer is
    is
       use EntsList;
       Curs : EntsList.Cursor := L.First;
-      E : access Entity'Class;
+      E : EntityClassAcc;
    begin
       
       while Curs /= EntsList.No_Element loop
@@ -138,7 +138,7 @@ package body Renderer is
       return White;
    end GetLinkColor;
    
-   function InvalidEnt(E : access Entity'Class) return Boolean
+   function InvalidEnt(E : EntityClassAcc) return Boolean
    is
    begin
       if E = null then return True; end if;

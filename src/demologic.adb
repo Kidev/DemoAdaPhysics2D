@@ -79,7 +79,7 @@ package body DemoLogic is
             declare
                use EntsList;
                Curs : EntsList.Cursor := W.GetEntities.First;
-               E : access Entity'Class;
+               E : EntityClassAcc;
             begin
                while Curs /= EntsList.No_Element loop
                   E := EntsList.Element(Curs);
@@ -139,7 +139,7 @@ package body DemoLogic is
                          
    procedure ToggleGravity(This : in out Menu) is
       use EntsList;
-      E : access Entity'Class;
+      E : EntityClassAcc;
       Curs : EntsList.Cursor := CurWorld.Entities.First;
       Grav : constant Vec2D := (0.0, (if GlobalGravity.y = 0.0 then 9.81 else 0.0));
    begin
@@ -214,7 +214,7 @@ package body DemoLogic is
 
    procedure CreateCircle(W : in out World; X, Y : Integer; H : Natural)
    is
-      C : Circles.CircleAcc;
+      C : EntityClassAcc;
       VecZero : constant Vec2D := (0.0, 0.0);
       VecPos : constant Vec2D := (Float(X), Float(Y));
    begin
@@ -224,7 +224,7 @@ package body DemoLogic is
 
    procedure CreateRectangle(W : in out World; X, Y : Integer; H : Natural)
    is
-      R : Rectangles.RectangleAcc;
+      R : EntityClassAcc;
       VecZero : constant Vec2D := (0.0, 0.0);
       VecPos : constant Vec2D := (Float(X), Float(Y));
    begin

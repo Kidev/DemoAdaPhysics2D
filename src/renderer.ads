@@ -27,9 +27,9 @@ package Renderer is
    -- Gets the color for the link
    function GetLinkColor(L : LinkAcc) return Bitmap_Color;
 
-   function GetCenteredPos(E : access Entity'Class) return Point;
+   function GetCenteredPos(E : EntityClassAcc) return Point;
 
    -- Tells if an entity is invalid
-   function InvalidEnt(E : access Entity'Class) return Boolean;
+   function InvalidEnt(E : EntityClassAcc) return Boolean;
 
 end Renderer;

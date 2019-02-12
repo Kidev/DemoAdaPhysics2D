@@ -1,3 +1,4 @@
+with Entities; use Entities;
 with Rectangles;
 with Worlds;
 with Materials;
@@ -10,8 +11,8 @@ package body AdaPhysics2DDemo is
 
    procedure Start(This : in out Menu)
    is
-      SCeiling, SFloor, SRight, SLeft : Rectangles.RectangleAcc;
-      EAir, EWater : Rectangles.RectangleAcc;
+      SCeiling, SFloor, SRight, SLeft : EntityClassAcc;
+      EAir, EWater : EntityClassAcc;
       W1 : Worlds.World;
       VecZero : constant Vec2D := (0.0, 0.0);
       Vec1, Vec2 : Vec2D;
