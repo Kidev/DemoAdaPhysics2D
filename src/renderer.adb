@@ -15,6 +15,7 @@ package body Renderer is
       Display.Update_Layer(1, Copy_Back => True);
    end Render;
    
+   -- TODO implement GetRandomBezierPointFor & make one for springs (maybe)
    procedure RenderLinksList(L : LinksListAcc)
    is
       use LinksList;
@@ -24,7 +25,14 @@ package body Renderer is
       while Curs /= LinksList.No_Element loop
          CurLink := LinksList.Element(Curs);
          Display.Hidden_Buffer(1).Set_Source(GetLinkColor(CurLink));
-         Display.Hidden_Buffer(1).Draw_Line(GetCenteredPos(CurLink.A), GetCenteredPos(CurLink.B), 1);
+         if CurLink.LinkType = LTRope then
+            Display.Hidden_Buffer(1).Cubic_Bezier(GetCenteredPos(CurLink.A),
+                                                  GetRandomBezierPointFor(CurLink),
+                                                  GetRandomBezierPointFor(CurLink),
+                                                  GetCenteredPos(CurLink.B), 20, 1);
+         else
+            Display.Hidden_Buffer(1).Draw_Line(GetCenteredPos(CurLink.A), GetCenteredPos(CurLink.B), 1);
+         end if;
          Curs := LinksList.Next(Curs);
       end loop;
    end RenderLinksList;
@@ -34,6 +42,12 @@ package body Renderer is
    begin
       return GetIntCoords(E.GetPosition);
    end GetCenteredPos;
+   
+   function GetRandomBezierPointFor(Link : LinkAcc) return Point
+   is
+   begin
+      return (0, 0);
+   end GetRandomBezierPointFor;
    
    procedure RenderCue(Cue : VisualCue) is
    begin

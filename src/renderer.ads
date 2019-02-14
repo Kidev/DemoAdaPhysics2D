@@ -21,6 +21,8 @@ package Renderer is
    function GetIntCoords(flCoords : Vec2D) return Point
      with Post => GetIntCoords'Result.X <= 240 and GetIntCoords'Result.Y <= 320;
 
+   function GetRandomBezierPointFor(Link : LinkAcc) return Point;
+
    -- Gets the color appropriate for the material
    function GetColor(Mat : in Material) return Bitmap_Color;
 

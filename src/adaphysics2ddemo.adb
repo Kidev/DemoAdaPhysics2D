@@ -85,7 +85,7 @@ package body AdaPhysics2DDemo is
          if not Frozen then
             Tick := Tick + 1;
             -- update the world for one tick (dt)
-            W1.Step;
+            W1.Step(Worlds.Step_Normal);
          end if;
 
          -- clear buffer for next render

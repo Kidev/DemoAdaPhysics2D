@@ -174,10 +174,13 @@ package body DemoLogic is
          EntLinkerSelected := null;
       elsif EntLinkerSelected = null then
          EntLinkerSelected := Ent;
-      else
+      elsif Ent /= EntLinkerSelected then
          W.LinkEntities(EntLinkerSelected, Ent, EntLinkerType);
          EntLinkerSelected := null;
+      else
+         EntLinkerSelected := null;
       end if;
+      
    end TryToLinkAt;
    
    procedure TryToEditAt(W : in out World; X, Y : Integer)

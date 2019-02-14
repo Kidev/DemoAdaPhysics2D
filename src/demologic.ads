@@ -9,7 +9,7 @@ package DemoLogic is
    
    Hold : Natural := 0;
    LastX, LastY : Integer := 0;
-   GlobalGravity : Vec2D := (0.0, 9.81);
+   GlobalGravity : Vec2D := (0.0, 0.0);
    MaxHold : constant Natural := 40;
    EntCreatorMat : Materials.Material := Materials.RUBBER;
    EntEditorMat : Materials.Material := Materials.VACUUM;

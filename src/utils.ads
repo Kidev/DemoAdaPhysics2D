@@ -6,4 +6,6 @@ package Utils is
 
    procedure Clear(Update : Boolean; Color : Bitmap_Color := BG);
 
+   function GetRandomFloat return Float;
+
 end Utils;

@@ -38,6 +38,7 @@ with STM32.Board; use STM32.Board;
 with STM32.Device; use STM32.Device;
 with STM32.GPIO; use STM32.GPIO;
 with STM32.EXTI; use STM32.EXTI;
+with STM32.RNG.Interrupts; use STM32.RNG.Interrupts;
 with STM32; use STM32;
 with L3GD20; use L3GD20;
 with HAL.Bitmap; use HAL.Bitmap;
@@ -59,6 +60,7 @@ begin
    Display.Initialize_Layer(1, RGB_565);
    Touch_Panel.Initialize;
    User_Button.Initialize;
+   Initialize_RNG;
 
    -- Debug prints
    LCD_Std_Out.Set_Font (BMP_Fonts.Font8x8);

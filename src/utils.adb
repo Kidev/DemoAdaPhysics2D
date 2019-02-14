@@ -1,4 +1,6 @@
+with STM32.RNG.Interrupts; use STM32.RNG.Interrupts;
 with STM32.Board; use STM32.Board;
+with HAL; use HAL;
 
 package body Utils is
 
@@ -10,5 +12,10 @@ package body Utils is
          Display.Update_Layer(1, Copy_Back => False);
       end if;
    end Clear;
+
+   function GetRandomFloat return Float is
+   begin
+      return Float(Random) / Float(UInt32'Last);
+   end GetRandomFloat;
 
 end Utils;
