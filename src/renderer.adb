@@ -26,10 +26,10 @@ package body Renderer is
          CurLink := LinksList.Element(Curs);
          Display.Hidden_Buffer(1).Set_Source(GetLinkColor(CurLink));
          if CurLink.LinkType = LTRope then
-            Display.Hidden_Buffer(1).Cubic_Bezier(GetCenteredPos(CurLink.A),
-                                                  GetRandomBezierPointFor(CurLink),
-                                                  GetRandomBezierPointFor(CurLink),
-                                                  GetCenteredPos(CurLink.B), 20, 1);
+            Display.Hidden_Buffer(1).Bezier((GetCenteredPos(CurLink.A),
+                                            GetBezierPoint(CurLink, 1, 3),
+                                            GetBezierPoint(CurLink, 2, 3),
+                                            GetCenteredPos(CurLink.B)), 20, 1);
          else
             Display.Hidden_Buffer(1).Draw_Line(GetCenteredPos(CurLink.A), GetCenteredPos(CurLink.B), 1);
          end if;
@@ -43,11 +43,20 @@ package body Renderer is
       return GetIntCoords(E.GetPosition);
    end GetCenteredPos;
    
-   function GetRandomBezierPointFor(Link : LinkAcc) return Point
+   function GetBezierPoint(Link : LinkAcc; i : Natural; n : Positive) return Point
    is
+      P0 : constant Vec2D := Link.A.GetPosition;
+      Pn : constant Vec2D := Link.B.GetPosition;
+      Len : constant Float := Mag(Pn - P0);
+      Dir : constant Vec2D := (1.0 / Len) * (Pn - P0);
+      Normal : constant Vec2D := Dir.Normal;
+      X : constant Float := Link.RestLen - Len;
+      Pi : Vec2D := ((Len / Float(n)) * Float(i) * Dir) + P0;
    begin
-      return (0, 0);
-   end GetRandomBezierPointFor;
+      if X < 0.0 then return GetIntCoords(P0); end if;
+      Pi := ((if i mod 2 = 0 then 1.0 else -1.0) * Normal * X) + Pi;
+      return GetIntCoords(Pi);
+   end GetBezierPoint;
    
    procedure RenderCue(Cue : VisualCue) is
    begin
