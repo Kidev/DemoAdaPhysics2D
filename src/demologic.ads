@@ -24,6 +24,7 @@ package DemoLogic is
       X, Y, R : Integer;
       EntType : EntityTypes;
       Mat : Material;
+      Selected : EntityClassAcc := null;
    end record;
 
    function Inputs(W : in out World; Frozen : in out Boolean;

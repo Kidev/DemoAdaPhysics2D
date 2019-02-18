@@ -22,7 +22,7 @@ package body DemoLogic is
    begin
       CurWorld := W;
       Get_Raw_Angle_Rates (Gyro, Axes);
-      Cue := VisualCue'(0, 0, -1, EntCircle, EntCreatorMat);
+      Cue := VisualCue'(0, 0, -1, EntCircle, EntCreatorMat, EntLinkerSelected);
 
       -- User button
       if User_Button.Has_Been_Pressed then
@@ -31,7 +31,7 @@ package body DemoLogic is
          if Mode = M_Frozen then
             ShowActionMenu;
             if Quit then
-               Cue := VisualCue'(-1, -1, -1, EntCircle, EntCreatorMat);
+               Cue := VisualCue'(-1, -1, -1, EntCircle, EntCreatorMat, null);
                return False;
             end if;
             Mode := Modes'Val((Modes'Pos(Mode) + 1) mod (Modes'Pos(Modes'Last) + 1));
@@ -209,8 +209,8 @@ package body DemoLogic is
    is
    begin
       case Mode is
-         when M_Circle => Cue := VisualCue'(X, Y, H, EntCircle, EntCreatorMat);
-         when M_Rectangle => Cue := VisualCue'(X, Y, H, EntRectangle, EntCreatorMat);
+         when M_Circle => Cue := VisualCue'(X, Y, H, EntCircle, EntCreatorMat, EntLinkerSelected);
+         when M_Rectangle => Cue := VisualCue'(X, Y, H, EntRectangle, EntCreatorMat, EntLinkerSelected);
          when M_Disabled | M_Frozen | M_Link | M_Edit => null;
       end case;
    end DisplayEntity;

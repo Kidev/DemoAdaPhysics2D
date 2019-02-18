@@ -8,7 +8,7 @@ package body Renderer is
    is
    begin
       RenderList(W.GetEnvironments);
-      RenderList(W.GetEntities);
+      RenderList(W.GetEntities, Cue.Selected);
       RenderLinksList(W.GetLinks);
       RenderCue(Cue);
       
@@ -71,7 +71,7 @@ package body Renderer is
       end if;
    end RenderCue;
 
-   procedure RenderList(L : EntsListAcc)
+   procedure RenderList(L : EntsListAcc; Selected : EntityClassAcc := null)
    is
       use EntsList;
       Curs : EntsList.Cursor := L.First;
@@ -82,7 +82,11 @@ package body Renderer is
          
          E := EntsList.Element(Curs);
          
-         Display.Hidden_Buffer(1).Set_Source(GetColor(E.Mat));
+         if E /= Selected then
+            Display.Hidden_Buffer(1).Set_Source(GetColor(E.Mat));
+         else
+            Display.Hidden_Buffer(1).Set_Source(Opposite(GetColor(E.Mat)));
+         end if;
          
          case E.all.EntityType is
 
