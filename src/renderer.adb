@@ -25,17 +25,40 @@ package body Renderer is
       while Curs /= LinksList.No_Element loop
          CurLink := LinksList.Element(Curs);
          Display.Hidden_Buffer(1).Set_Source(GetLinkColor(CurLink));
-         if CurLink.LinkType = LTRope then
-            Display.Hidden_Buffer(1).Bezier((GetCenteredPos(CurLink.A),
-                                            GetBezierPoint(CurLink, 1, 3),
-                                            GetBezierPoint(CurLink, 2, 3),
-                                            GetCenteredPos(CurLink.B)), 20, 1);
-         else
-            Display.Hidden_Buffer(1).Draw_Line(GetCenteredPos(CurLink.A), GetCenteredPos(CurLink.B), 1);
-         end if;
+         case CurLink.LinkType is
+            when LTRope => DrawRope(CurLink);
+            when LTSpring => DrawSpring(CurLink);
+         end case;
          Curs := LinksList.Next(Curs);
       end loop;
    end RenderLinksList;
+   
+   procedure DrawRope(Link : LinkAcc)
+   is
+   begin
+      Display.Hidden_Buffer(1).Bezier((GetCenteredPos(Link.A),
+                                      GetBezierPoint(Link, 1, 3),
+                                      GetBezierPoint(Link, 2, 3),
+                                      GetCenteredPos(Link.B)), 20, 1);
+   end DrawRope;
+   
+   procedure DrawSpring(Link : LinkAcc)
+   is
+      Dist : constant Float := 10.0; -- Dist > 0.0
+      N : constant Natural := Natural(Link.RestLen / Dist);
+      PLast : Point := GetBezierPoint(Link, 0, N, Dist);
+      PNext : Point;
+   begin
+      if N = 0 then
+         Display.Hidden_Buffer(1).Draw_Line(PLast, GetCenteredPos(Link.B), 1);
+      else
+         for I in 1 .. N loop
+            PNext := GetBezierPoint(Link, I, N, Dist);
+            Display.Hidden_Buffer(1).Draw_Line(PLast, PNext, 1);
+            PLast := PNext;
+         end loop;
+      end if;
+   end DrawSpring;
    
    function GetCenteredPos(E : EntityClassAcc) return Point
    is
@@ -43,17 +66,19 @@ package body Renderer is
       return GetIntCoords(E.GetPosition);
    end GetCenteredPos;
    
-   function GetBezierPoint(Link : LinkAcc; i : Natural; n : Positive) return Point
+   function GetBezierPoint(Link : LinkAcc; i : Natural; n : Positive; UseMul : Float := 0.0) return Point
    is
       P0 : constant Vec2D := Link.A.GetPosition;
       Pn : constant Vec2D := Link.B.GetPosition;
       Len : constant Float := Mag(Pn - P0);
       Dir : constant Vec2D := (1.0 / Len) * (Pn - P0);
       Normal : constant Vec2D := Dir.Normal;
-      X : constant Float := Link.RestLen - Len;
+      X : constant Float := (if UseMul = 0.0 then Link.RestLen - Len else UseMul);
       Pi : Vec2D := ((Len / Float(n)) * Float(i) * Dir) + P0;
    begin
-      if X < 0.0 then return GetIntCoords(P0); end if;
+      if i = 0 then return GetIntCoords(P0); end if;
+      if i = n then return GetIntCoords(Pn); end if;
+      if X < 0.0 and UseMul = 0.0 then return GetIntCoords(P0); end if;
       Pi := ((if i mod 2 = 0 then 1.0 else -1.0) * Normal * X) + Pi;
       return GetIntCoords(Pi);
    end GetBezierPoint;
